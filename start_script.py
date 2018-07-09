@@ -8,8 +8,14 @@ DESCRIPTION:
 Created on Thu Aug 06 14:01:55 2015
 
 @author: thecakeisalie
+
+Version date: 7/9/2018
+Daniel Hueholt
+North Carolina State University
+Undergraduate Research Assistant at Environment Analytics
+
 """
-# Load neccessary packages (set appropriate working directory!)
+# Load necessary packages (set appropriate working directory!)
 import colormap
 import gen_fun
 import run_fun
@@ -17,8 +23,8 @@ import gc
 
 ######### Define Variables #############
 ### Path Variables (strings)
-inpath = 'C:\\Users\\thecakeisalie\\Documents\\Python Scripts\\pyart_processing\\test_set'
-outpath = 'C:\\Users\\thecakeisalie\\Documents\\Python Scripts\\pyart_processing\\test_set\\images'
+inpath = 'C:\\Users\\danielholt\\My Documents\\vCHILL\\pyart_processing\\test_set'
+outpath = 'C:\\Users\\danielholt\\My Documents\\vCHILL\\pyart_processing\\test_set\\images'
 
 ### File and Data Variables ###
 ## Make sure these are what you want to ultimately plot!

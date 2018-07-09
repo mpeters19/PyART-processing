@@ -3,6 +3,11 @@
 Created on Fri May 30 15:06:17 2014
 
 @author: thecakeisalie
+
+Version date: 7/9/2018
+Daniel Hueholt
+North Carolina State University
+Undergraduate Research Assistant at Environment Analytics
 """
 
 # Import required modules
@@ -82,7 +87,8 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
                 plt.subplots_adjust(left=0.05, right=.99, top=0.95, bottom=0.2)
             else:
                 plt.subplots_adjust(left=0.1, right=.9, top=0.97, bottom=0.1)
-            ax.set_axis_bgcolor('LightGray')
+            #ax.set_axis_bgcolor('LightGray')
+            ax.set_facecolor('LightGray')
                         
             # Plat fields and set limits
             if scan_strat == 'RHI':
