@@ -4,7 +4,7 @@ Created on Fri May 30 15:06:17 2014
 
 @author: thecakeisalie
 
-Version date: 7/9/2018
+Version date: 11/1/2018
 Daniel Hueholt
 North Carolina State University
 Undergraduate Research Assistant at Environment Analytics
@@ -17,11 +17,12 @@ import pyart
 from matplotlib import pyplot as plt
 import gen_fun
 import quality_control
+import math
 
    
 def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps, 
          colorbar_labels, figsize, dealias_bool, x_lim, y_lim, axis=None,
-         title_flag=False,colorbar_flag = False):
+         title_flag=False,colorbar_flag = True):
     """
     DESCIPTION: Plots polar RHI and PPI data from netCDF on a cartesian grid. 
     
@@ -38,7 +39,7 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
         each field in order. The minimum value is the first number and the 
         maximum value is the second number. Ex. [(-10,65), (-30,30)]
     cmaps = A list containing strings or calls of the names of the colorbars used to 
-        plot each field respectively. Ex. [LCH, "seismic"]
+        plot each field respectively. Ex. [LCH, "RdBu_r"]
     colorbar_labels = A list of strings that specify the colorbar labels on 
         each field respectively. Ex. ["Reflectivity (dBZ)", "Velocity (m/s)] 
     figsize = A list of numbers to specify the size of all the figures. The 
@@ -60,17 +61,24 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
         if scan_strat == 'RHI':
             azi = gen_fun.get_azimuth(radar, sweepnum)
         else:
-            azi = []
+            azi = [] #Azimuth only matters for RHI scans
         for i in range(len(fields)):
             
             # Set variables
             field = fields[i]
-            cmap = cmaps[i]
-            colorbar_label = colorbar_labels[i]
+            try:
+                cmap = cmaps[i]
+            except IndexError:
+                raise IndexError("Check to make sure number of colormaps is correct!")
+                
+            try:
+                colorbar_label = colorbar_labels[i]
+            except IndexError:
+                raise IndexError("Check to make sure number of colorbar labels is correct!")
             vmin, vmax = ranges[i]                       
             
             # Check to see if values are in range
-            radar = quality_control.set2range(radar,field,vmax,vmin)
+            #radar = quality_control.set2range(radar,field,vmax,vmin)
             gc.collect()
             
             # Make radar display
@@ -83,34 +91,172 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
             # Initiate plot and specify size
             fig = plt.figure(figsize = figsize)
             ax = fig.add_subplot(111)
+            
             if scan_strat == 'RHI':
                 plt.subplots_adjust(left=0.05, right=.99, top=0.95, bottom=0.2)
             else:
                 plt.subplots_adjust(left=0.1, right=.9, top=0.97, bottom=0.1)
-            #ax.set_axis_bgcolor('LightGray')
-            ax.set_facecolor('LightGray')
-                        
-            # Plat fields and set limits
-            if scan_strat == 'RHI':
-                display.plot_rhi(field,sweepnum,vmin=vmin,vmax=vmax,title_flag=title_flag,cmap=cmap,axislabels=(axis, 'AGL (km)'),colorbar_flag=colorbar_flag,colorbar_label=colorbar_label)
-                display.set_limits(ylim=y_lim)
-                display.set_limits(xlim=x_lim)
-            else:
-                display.plot_ppi(field, sweepnum, vmin = vmin, vmax = vmax, title_flag = title_flag, cmap = cmap, axislabels = (axis, "N-S distance (km)"),colorbar_flag=colorbar_flag, colorbar_label = colorbar_label)
-                display.set_limits(ylim=y_lim)
-                display.set_limits(xlim=x_lim)
+            ax.set_facecolor('#CCCCCC') #Can be any Hex color code. Normal value: #CCCCCC (light gray)
                 
-            for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
-                item.set_fontsize(20)
+            try:
+#               Set up metadata text to be placed in figure
+#               This is controlled by manual logical variables below, but will be updated to reflect the obvious improvements below:
+#                   set the radar type in start_script
+#                   need to make metatext for other radars besides CHILL and KASPR, especially HF-S and StormRanger
+                CHILL = True
+                KASPR = False
+                if CHILL:
+                    y_text = filename[3:7]
+                    m_text = filename[7:9]
+                    d_text = filename[9:11]
+                    h_text = filename[12:14]
+                    min_text = filename[14:16]
+                    s_text = filename[16:18]
+                elif KASPR:
+                    y_text = filename[17:21]
+                    m_text = filename[21:23]
+                    d_text = filename[23:25]
+                    h_text = filename[26:28]
+                    min_text = filename[28:30]
+                    s_text = filename[30:32]
+                utc_text = ' UTC'
+                spacer = ' '
+                colon = ':'
+                long_spacer = '     '
+                time_text = y_text+spacer+m_text+spacer+d_text+long_spacer+h_text+colon+min_text+colon+s_text+utc_text #YYYY MM DD      HH:MM:SS UTC
+                if scan_strat == 'RHI':
+                    ang_text = 'azimuth = '
+                else:
+                    ang_text = 'elevation = '
+                a_text = str(round(radar.fixed_angle['data'][sweepnum],3))
+                degree_sym = u'\N{DEGREE SIGN}'
+                angle_text = ang_text+a_text+degree_sym
+                if (scan_strat=='Sector') or (scan_strat=='sector'):
+                    sect_text = 'Sector PPI'
+                    total_text = time_text+long_spacer+angle_text+long_spacer+sect_text
+                else:
+                    total_text = time_text+long_spacer+angle_text+long_spacer+scan_strat
+                
+                #caption_dict controls the text characteristics for all meta text on the figure
+                #Common colors:
+                #   UNCW teal: '#105456'
+                caption_dict = {'fontname':'Open Sans',
+                                'color': '#105456',
+                                'size': 24,
+                                'weight': 'bold'}
+                
+                metadisp = True #Logical to display metatext in figure
+                    
+                if scan_strat == 'RHI':
+                    display.plot_rhi(field,sweepnum,vmin=vmin,vmax=vmax,title_flag=title_flag,cmap=cmap,axislabels=(axis, 'AGL (km)'),colorbar_flag=True,colorbar_label=colorbar_label)
+                    display.set_limits(ylim=y_lim)
+                    display.set_limits(xlim=x_lim)
+                    display.set_aspect_ratio(aspect_ratio=1) #important!!
+                    plt.yticks(np.arange(0,y_lim[1]+1,step=1))
+                    
+                    if metadisp:
+                        labeled = 'labeled_'                        
+                        plt.figtext(0.38,0.958,total_text,caption_dict) #Place the metatext in the figure
+                else:
+                        display.plot_ppi(field, sweepnum, vmin = vmin, vmax = vmax, title_flag = title_flag, cmap = cmap, axislabels = (axis, "N-S distance (km)"),colorbar_flag=True, colorbar_label = colorbar_label)
+
+                        #Sector scan
+                        if scan_strat != 'PPI':
+                            #The edges of the sector are calculated using trigonometry
+                            azi_lim = np.asarray([min(radar.azimuth['data']),max(radar.azimuth['data'])])
+                            sec_angle = np.subtract([90,90],azi_lim)
+                            range_lims = np.asarray([max(x_lim),max(y_lim)])
+                            sec_rad = np.radians(sec_angle)
+                            trig_sec = np.array([math.cos(sec_rad[0]),math.tan(sec_rad[1])])
+                            offset = np.multiply(range_lims,trig_sec)
+                            
+                            #The sector edges are plotted as lines
+                            #By default, the lines are solid and use the #105456 UNCW teal color
+                            plt.plot([0,offset[0]],[0,range_lims[1]],color='#105456',linewidth=7)
+                            plt.plot([0,range_lims[0]],[0,offset[1]],color='#105456',linewidth=7)
+                            
+                            #The sector edges are then used to create a domain of consistent size that moves with the sector.
+                            #This is currently NOT fully adaptive--it assumes the range is 75km, as at CSU-CHILL, and only works 
+                            #for certain sectors.
+                            if (offset[0]<0) and (75+offset[1]-3>-75):
+                                x_lim = [offset[1]-3,75+offset[1]-3]
+                            else:
+                                x_lim = [0,75]
+                            
+                            if (offset[1]<0) and (75+offset[1]-3>-75):
+                                y_lim = [offset[1]-3,75+offset[1]-3]#[offset[1]-3,75-offset[1]-3]
+                            else:
+                                y_lim = [0,75]
+                            
+                            display.set_limits(ylim=y_lim)
+                            display.set_limits(xlim=x_lim)
+                            display.set_aspect_ratio(aspect_ratio=1)
+                            #---SECTOR SCAN SETTINGS END HERE---
+
+                        #This plots the line(s) of constant azimuth for paired PPI/RHI scan strategies
+                        #   For now, this is calculated manually.
+                        #plt.plot([0,22.29],[0,-30],color='#105456',linewidth=7)
+                        #plt.plot([0,-89.12],[0,12.53],color='#105456',linewidth=5) #azi = 278
+                        #plt.plot([0,-81.57],[0,-38.04],color='#105456',linewidth=5) #azi = 245
+                        #plt.plot([0,12.53],[0,-89.12],color='#105456',linewidth=5) #azi = 173
+                        
+                        #plt.plot([0,-15.6],[0,-88.6],color='#105456',linewidth=5) #azi = 187.5
+                        #plt.plot([0,-84.42],[0,31.2],color='#105456',linewidth=5) #azi = 280
+                        
+                        #plt.plot([0,81.6],[0,38.0],color='#105456',linewidth=5) #azi = 25
+                        #plt.plot([0,-83.1],[0,34.4],color='#105456',linewidth=5) #azi = 292.5
+                        
+                        #plt.plot([0,87.7],[0,-20.2],color='#105456',linewidth=5) #azi = 103
+                        #plt.plot([0,64.7],[0,-62.5],color='#105456',linewidth=5) #azi = 134
+                        
+                        plt.plot([0,-64.95],[0,37.5],color='#105456',linewidth=5) #azi = 300
+                        plt.plot([0,-25.65],[0,-70.48],color='#105456',linewidth=5) #azi = 200
+                        plt.plot([0,48.2],[0,-57.45],color='#105456',linewidth=5) #azi = 145
+                        plt.plot([0,64.95],[0,-37.5],color='#105456',linewidth=5) #azi = 120
+                        
+
+                        display.set_limits(ylim=y_lim)
+                        display.set_limits(xlim=x_lim)
+                        display.set_aspect_ratio(aspect_ratio=1)
+                        
+                        if metadisp:
+                            labeled = 'labeled_'
+                            plt.figtext(0.17,0.905,total_text,caption_dict) #Place the metatext in the figure
+                            
+            except ValueError:
+                print "Error in sweep!" #Prevents the plotter from failing silently on a large number of files
+                continue
+            
+            #Control figure text: axis labels, axis tick labels, colorbar tick labels, and colorbar label
+            for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels() + fig.axes[1].get_yticklabels() + [fig.axes[1].yaxis.label]):
+                item.set_fontsize(30)
+            #No colorbar version
+#            for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
+#                item.set_fontsize(26)
+#            for item in ([ax.xaxis.label]):
+#                item.set_fontsize(0)
+            
             
             try:
+                if KASPR==True:
+                    raise ValueError #This is some dark magick but it's Hallowe'en so thematic I guess??
                 save_name = gen_fun.get_savename(filename, sweepnum, outpath, scan_strat, field, azi, dealias_bool)
             except:
-                print "Name is not ROSE or WSR88D compatable. Using generic save name."
+                #print "Name is not ROSE or WSR88D compatible. Using generic save name."
                 if scan_strat == 'RHI':
-                    save_name = "%s%s.azi%d.%s.%d.png" %(outpath, filename, azi, field, sweepnum)
+                    if metadisp:
+                        ang = 'ang'
+                        a_save = ang+a_text
+                        save_name = "%s%s%s.azi%d.%s.%d.%s.png" %(outpath, labeled, filename, azi, field, sweepnum, a_save)
+                    else:
+                        save_name = "%s%s.azi%d.%s.%d.png" %(outpath, filename, azi, field, sweepnum)
                 else:
-                    save_name = "%s%s.%s.%d.png" %(outpath, filename, field, sweepnum)
+                    ang = 'ang'
+                    a_save = ang+a_text
+                    if metadisp:
+                        save_name = "%s%s%s.%s.%d.%s.png" %(outpath, labeled, filename, field, sweepnum, a_save)
+                    else:
+                        save_name = "%s%s.%s.%d.%s.png" %(outpath, filename, field, sweepnum, a_save)
                 
             plt.close('all')
             fig.savefig(save_name)

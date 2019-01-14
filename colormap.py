@@ -122,6 +122,37 @@ def PID_Integer():
     """
         
     colors_hex = ['#996633','#663300','#66FF33','#009900','#336600','#CC0000','#E61616','#FF3333','#FF4D4D','#FF6666','#66FFFF','#52CCCC','#0099FF','#33CCFF','#FFC2E0','#FFFFAD','#F3E6C1','#FFD6AD','#CCCCFF']
+                  
+                  
+    cmap_PID = colors.ListedColormap(colors_hex, name = 'PID')    
+    
+    
+#    colors_RGB = []
+#    for i in range(0, nump.size(colors_hex)):
+#        color_RGB = hex_to_rgb(colors_hex[i])
+#        colors_RGB.append((color_RGB/255)        
+#        
+#    cmap_PID = colors.ListedColormap(colors_RGB, name='PID')
+    
+    
+#    x = nump.linspace(0,1,21)
+#    X,Y = nump.meshgrid(x,x)
+#    Z = .5*(X+Y)
+#    plt.pcolor(X,Y,Z, cmap=cmap_PID, edgecolors='k')
+#    plt.axis('equal')
+#    plt.colorbar()
+#    plt.title('Plot of x+y using colormap')
+ 
+    return cmap_PID
+
+def PID_Integer_CHILL():
+    """
+    Colormap definition for PID field in ROSE data.
+    """
+        
+    #colors_hex = ['#30006A', '#440984', '#59199E', '#6F2AB4', '#853DC6', '#9B51D5', '#B066DF', '#C37DE5', '#D595E6', '#E5AEE3', '#F2C9DB', '#FFFFFF']
+    colors_hex = ['#779CF6','#8079C7','#795898','#683C6C','#321023','#7C2742','#A4344C','#CC4552','#F35953']
+    
     cmap_PID = colors.ListedColormap(colors_hex, name = 'PID')    
     
     
