@@ -3,13 +3,16 @@
 Created on Thu Aug 06 12:42:46 2015
 
 @author: thecakeisalie
+
+Currently maintained by Daniel Hueholt
+Last updated: 1/15/2019
 """
 import glob
 import os
 import numpy as np
 import string
 import quality_control
-import cPickle as pickle
+import _pickle as pickle
 
 def get_azimuth(radar, sweepnum):
     """

@@ -55,7 +55,7 @@ def dealias(radar, filename, outpath, name2dealias, new_name, nyquist_vel,
     # Determine which sweeps have no data and extract only the ones that have data 
     if nyquist_vel != None:
         good = []
-        print "Dealiasing in progress!"
+        print("Dealiasing in progress!")
         for i in range(radar.nsweeps):
             sweep = radar.get_slice(i)
             if radar.fields[name2dealias]['data'][sweep][0,:].flatten().count() != 0:
@@ -65,7 +65,7 @@ def dealias(radar, filename, outpath, name2dealias, new_name, nyquist_vel,
     # Dealias and add new dealiased field to radar object    
     corr_vel = pyart.correct.dealias_region_based(radar,vel_field=name2dealias,nyquist_vel=nyquist_vel,skip_along_ray=skip_along_ray,skip_between_rays=skip_between_rays,gatefilter=False,keep_original=False)
     radar.add_field(new_name, corr_vel, True)
-    print "Dealiasing complete in current file!"
+    print("Dealiasing complete in current file!")
        
     # Save a new file containing the dealiased field
     if savefile == True:
@@ -107,7 +107,7 @@ def set2range(radar, field, val_max, val_min):
 
 def noiseMaskGeneral(radar,radar_fieldnames,Z_mask,rhoHV_mask):
     noise_ind = radar.fields['correlation_coefficient']['data'].data[(radar.fields['correlation_coefficient']['data'].data < rhoHV_mask['range'][0]) & (radar.fields['correlation_coefficient']['data'].data < Z_mask['range'][0])]
-    print noise_ind
+    print(noise_ind)
     time.sleep(3)
     
     for field in radar_fieldnames:
@@ -149,7 +149,7 @@ def removeNoiseZ(radar, radar_fieldnames, Z_min, Z_max):
         try:
             radar.fields[field]['data'].data[over] = None
             radar.fields[field]['data'].data[under] = None
-        except TypeError:
+        except NotImplementedError:
             radar.fields[field]['data'][over] = None
             radar.fields[field]['data'][under] = None
     
@@ -190,7 +190,7 @@ def removeMountainClutter(radar, radar_fieldnames):
     for field in radar_fieldnames:
         try:
             radar.fields[field]['data'].data[mountainIndices] = None
-        except TypeError:
+        except NotImplementedError:
             radar.fields[field]['data'][mountainIndices] = None #For calculated fields like Rasmussen snow rate
     
 #    print "Panda Horse!"
@@ -270,7 +270,7 @@ def removeNoiseRhoHV(radar, radar_fieldnames, rhohv_min, rhohv_max):
         try:
             radar.fields[field]['data'].data[over] = None
             radar.fields[field]['data'].data[under] = None
-        except TypeError:
+        except NotImplementedError:
             radar.fields[field]['data'][over] = None
             radar.fields[field]['data'][under] = None
     

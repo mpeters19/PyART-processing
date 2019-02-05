@@ -4,6 +4,8 @@ Created on Mon Jun 23 15:06:14 2014
 
 @author: thecakeisalie
 
+make_colormap by StackOverflow user unutbu
+
 """
 
 import numpy as nump
@@ -12,6 +14,7 @@ import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib import colors
 import sys
+import seaborn
 
 def LCH_Spiral(nc = 100, np = .4, offset = 30, reverse = 1, L_range = [100, 0], name = 'LCH'):
 
@@ -96,7 +99,7 @@ def LCH_Spiral(nc = 100, np = .4, offset = 30, reverse = 1, L_range = [100, 0], 
         #p.append(k[0])
         #p.append(k[1])
         #p.append(k[2])
-        hexc = rgb_to_hex((k[0],k[1],k[2]))
+        hexc = rgb_to_hex((int(k[0]),int(k[1]),int(k[2])))
         hex_mp.append(hexc)
     
     mymap = colors.ListedColormap(hex_mp, name = name) 
@@ -216,3 +219,24 @@ def convert_to_grey(x, vmin, vmax):
     dv = vmax-vmin
     grey = nump.floor(255*(x/dv))
     return grey
+
+
+def cuckoo():
+    cuckooBrownHue = 34
+    cuckooGrayBlueHue= 174
+    cuckooPalette = seaborn.diverging_palette(cuckooGrayBlueHue,cuckooBrownHue,center='light',as_cmap=True)
+    return cuckooPalette
+
+
+#def make_colormap(seq):
+#    seq = [(None,) * 3, 0.0] + list(seq) + [1.0,(None,)*3]
+#    cdict={'red':[],'green':[],'blue':[]}
+#    for i,item in enumerate(seq):
+#        if isinstance(item,float):
+#            r1,g1,b1=seq[i-1]
+#            r2,g2,b2=seq[i+1]
+#            cdict['red'].append([item,r1,r2])
+#            cdict['green'].append([item,g1,g2])
+#            cdict['blue'].append([item,b1,b2])
+#    return colors.LinearSegmentedColormap('CustomMap',cdict)
+    

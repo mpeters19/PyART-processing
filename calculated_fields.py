@@ -4,7 +4,7 @@ Created on Fri Dec  7 12:35:27 2018
 
 @author: danielholt
 
-Version date: 12/7/2018
+Version date: 1/29/2019
 Daniel Hueholt
 North Carolina State University
 Undergraduate Research Assistant at Environment Analytics
@@ -59,29 +59,40 @@ def rasmussen_snow_rate(radar, radar_fieldnames):
     return radar
     return radar_fieldnames
 
-#def two_way_differential_phase(radar, radar_fieldnames):
-#    """
-#    DESCRIPTION: Calculates the two-way differential phase (Kdp)
-#    then adds said field to the radar object.
-#    
-#    NOTE THAT THE NEW FIELD IS NOT FORMATTED EXACTLY THE SAME AS A NORMAL PYART DATA FIELD
-#    PyART data fields are by default masked arrays with a data, mask, and fill_value component. The new 
-#    snow rate field will simply be an array.
-#    
-#    
-#    INPUTS:
-#    radar = A python object structure that contains radar information. Created
-#        by PyART in one of the pyart.io.read functions.
-#    radar_fieldnames = names of fields in the radar object
-#    
-#    OUTPUTS:
-#    radar = The original radar object but with the edited values for the 
-#        specified field.
-#        
-#    """
-#    phidp = radar.fields['specific_differential_phase']
-#    
-#    phidp = np.diff(phidp)
+def two_way_differential_phase(radar, radar_fieldnames):
+    """
+    DESCRIPTION: Calculates the two-way differential phase (Kdp)
+    then adds said field to the radar object.
+    
+    NOTE THAT THE NEW FIELD IS NOT FORMATTED EXACTLY THE SAME AS A NORMAL PYART DATA FIELD
+    PyART data fields are by default masked arrays with a data, mask, and fill_value component. The new 
+    snow rate field will simply be an array.
+    
+    
+    INPUTS:
+    radar = A python object structure that contains radar information. Created
+        by PyART in one of the pyart.io.read functions.
+    radar_fieldnames = names of fields in the radar object
+    
+    OUTPUTS:
+    radar = The original radar object but with the edited values for the 
+        specified field.
+        
+    """
+    phidp = radar.fields['specific_differential_phase']['data'].data
+    
+    kdp = np.diff(phidp)
+    # This will now have a size -1 columns, as it is a difference of the original.
+    # The size mismatch will prevent PyART from adding it properly to the radar object.
+    # Hence, it must be padded.
+    kdp = np.pad(kdp,[(0,0),(0,1)],'constant',constant_values=(np.nan))
+    
+    
+    radar.add_field_like('reflectivity','kdp',kdp,replace_existing=False)
+    radar_fieldnames.append('kdp')
+    
+    return radar
+    return radar_fieldnames
     
     
     

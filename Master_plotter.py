@@ -126,9 +126,11 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
                 time_text = y_text+spacer+m_text+spacer+d_text+long_spacer+h_text+colon+min_text+colon+s_text+utc_text #YYYY MM DD      HH:MM:SS UTC
                 if scan_strat == 'RHI':
                     ang_text = 'azimuth = '
+                    a_text = str(round(azi,1))
                 else:
                     ang_text = 'elevation = '
-                a_text = str(round(radar.fixed_angle['data'][sweepnum],3))
+                    a_text = str(round(radar.fixed_angle['data'][sweepnum],2))
+
                 degree_sym = u'\N{DEGREE SIGN}'
                 angle_text = ang_text+a_text+degree_sym
                 if (scan_strat=='Sector') or (scan_strat=='sector'):
@@ -156,7 +158,7 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
                     
                     if metadisp:
                         labeled = 'labeled_'                        
-                        plt.figtext(0.38,0.958,total_text,caption_dict) #Place the metatext in the figure
+                        plt.figtext(0.38,0.88,total_text,caption_dict) #Place the metatext in the figure
                 else:
                         display.plot_ppi(field, sweepnum, vmin = vmin, vmax = vmax, title_flag = title_flag, cmap = cmap, axislabels = (axis, "N-S distance (km)"),colorbar_flag=True, colorbar_label = colorbar_label)
 
@@ -224,7 +226,7 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
                             plt.figtext(0.17,0.905,total_text,caption_dict) #Place the metatext in the figure
                             
             except ValueError:
-                print "Error in sweep!" #Prevents the plotter from failing silently on a large number of files
+                print("Error in sweep!") #Prevents the plotter from failing silently on a large number of files
                 continue
             
             #Control figure text: axis labels, axis tick labels, colorbar tick labels, and colorbar label
@@ -245,9 +247,7 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
                 #print "Name is not ROSE or WSR88D compatible. Using generic save name."
                 if scan_strat == 'RHI':
                     if metadisp:
-                        ang = 'ang'
-                        a_save = ang+a_text
-                        save_name = "%s%s%s.azi%d.%s.%d.%s.png" %(outpath, labeled, filename, azi, field, sweepnum, a_save)
+                        save_name = "%s%s%s.azi%d.%s.%d.png" %(outpath, labeled, filename, azi, field, sweepnum)
                     else:
                         save_name = "%s%s.azi%d.%s.%d.png" %(outpath, filename, azi, field, sweepnum)
                 else:
@@ -259,12 +259,14 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
                         save_name = "%s%s.%s.%d.%s.png" %(outpath, filename, field, sweepnum, a_save)
                 
             plt.close('all')
+            fig.tight_layout()
             fig.savefig(save_name)
             del display
             gc.collect()
             
         print ("%s %d" % ('Sweep number', sweepnum))
         del azi
+        del fig
         
         gc.collect()
 

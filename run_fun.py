@@ -19,6 +19,7 @@ import sys
 import calculated_fields
 import colormap
 
+
 def parse_filelist(filelist, inpath, outpath, CHILL, fields, ranges, plot_bool, cmaps,
                    colorbar_labels, x_lim, y_lim, scan_strat, dealias_bool, 
                    name2dealias, new_name, nyquist_vel, Z_mask, Zdr_mask, PhiDP_mask, rhoHV_mask,
@@ -31,12 +32,15 @@ def parse_filelist(filelist, inpath, outpath, CHILL, fields, ranges, plot_bool, 
         
         # Define the filename
         filename = filelist[item]
+        if length_filelist==1:
+            filename = filelist
+            
         
         # Make full path to file
         fqfn = inpath + filename
         
         # Print the full path
-        print fqfn
+        print(fqfn)
         
         # Construct radar object
         if CHILL==True:
@@ -51,7 +55,9 @@ def parse_filelist(filelist, inpath, outpath, CHILL, fields, ranges, plot_bool, 
                         })
         else: 
             radar = pyart.io.read(fqfn)            
-
+        
+        
+        ##Add custom-calculated fields
         #Add the snow rate field
         snow_rate_bool = True;
         if snow_rate_bool:
@@ -59,6 +65,15 @@ def parse_filelist(filelist, inpath, outpath, CHILL, fields, ranges, plot_bool, 
             ranges.append((0,1.25))
             cmaps.append('viridis') #or YlGnBu
             colorbar_labels.append('Snow rate (mm/hr)')
+            
+        #Add the Kdp field
+        kdp_bool = True;
+        if kdp_bool:
+            radar = calculated_fields.two_way_differential_phase(radar,fields)
+            ranges.append((-0.25,0.25))
+            cuckooPalette = colormap.cuckoo()
+            cmaps.append(cuckooPalette)
+            colorbar_labels.append('Kdp (deg/km)')
       
         # Data quality
         #   Remove values outside of a given Z, PhiDP, RhoHV, NCP range        
@@ -82,7 +97,7 @@ def parse_filelist(filelist, inpath, outpath, CHILL, fields, ranges, plot_bool, 
             fields.remove(new_name)
             #print fields
             fields.insert(v_ind,name2dealias)
-            print fields
+            print(fields)
             if Z_mask['bool'] == True:
                 radar = quality_control.removeNoiseZ(radar,fields,Z_mask['range'][0],Z_mask['range'][1])
             if Zdr_mask['bool'] == True:
@@ -121,7 +136,7 @@ def parse_filelist(filelist, inpath, outpath, CHILL, fields, ranges, plot_bool, 
         
         # Set figure sizes
         if scan_strat == 'RHI':
-            figsize = [40,12]#[14.66, 3.652]#[40, 12]#[49.82, 4]#[43.6, 3.5]#30,4 #25,4
+            figsize = [40,6]#[40,6]#[40,12]#[14.66, 3.652]#[40, 12]#[49.82, 4]#[43.6, 3.5]#30,4 #25,4
         else:
             figsize = [16,16] #Same settings used for PPI and sector scans [16.346, 12]
         
@@ -131,8 +146,8 @@ def parse_filelist(filelist, inpath, outpath, CHILL, fields, ranges, plot_bool, 
             gc.collect()
         
         # Print how many files are left to go
-        numleft = (length_filelist - item -1)
-        print numleft
+        #numleft = (length_filelist - item -1)
+        #print(numleft)
         del radar
         del filename
         del fqfn
