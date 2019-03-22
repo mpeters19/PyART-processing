@@ -26,7 +26,7 @@ Created on Thu Aug 06 14:01:55 2015
 
 @author: thecakeisalie
 
-Version date: 01/29/2019
+Version date: 10/26/2018
 Daniel Hueholt
 North Carolina State University
 Undergraduate Research Assistant at Environment Analytics
@@ -37,16 +37,11 @@ import colormap
 import gen_fun
 import run_fun
 import gc
-#import tracemalloc
-import numpy as np
-from multiprocessing import Process
-
-#tracemalloc.start()
 
 ######### Define Variables #############
 ### Path Variables (strings)
-inpath = 'H:\\store radar files\\CSU-CHILL\\20180210\\X\\RHI'
-outpath = 'H:\\radar output\\testImages\\contours\\'
+inpath = 'H:\\store radar files\\CSU-CHILL\\20180210\\X\\RHI\\'
+outpath = 'H:\\radar output\\testImages\\'
 
 ### File and Data Variables ###
 
@@ -75,9 +70,8 @@ scan_strat = 'RHI' #Possible entries are below
 #KASPR (commonly-used): ['correlation_coefficient','differential_reflectivity','PyART_dealiased_velocity','reflectivity','spectrum_width','linear_depolarization_ratio','snr']
 #CSU-CHILL: ['reflectivity','corrected_velocity','corrected_differential_reflectivity','spectrum_width','cross_correlation_ratio','normalized_coherent_power','specific_differential_phase']
 
-fields = ['reflectivity','dealiased_velocity','corrected_differential_reflectivity','spectrum_width','cross_correlation_ratio','normalized_coherent_power','one_way_differential_phase','two_way_differential_phase']
-#fields = ['reflectivity','dealiased_velocity','corrected_differential_reflectivity','spectrum_width','cross_correlation_ratio']
-#fields = ['reflectivity','dealiased_velocity','corrected_differential_reflectivity','normalized_coherent_power','cross_correlation_ratio']
+#fields = ['reflectivity','dealiased_velocity','corrected_differential_reflectivity','spectrum_width','cross_correlation_ratio','normalized_coherent_power','specific_differential_phase']
+fields = ['reflectivity','dealiased_velocity','corrected_differential_reflectivity','spectrum_width','cross_correlation_ratio']
 #fields = ['reflectivity','dealiased_velocity']
 #fields = ['reflectivity','cross_correlation_ratio']
 
@@ -90,9 +84,8 @@ fields = ['reflectivity','dealiased_velocity','corrected_differential_reflectivi
 #ranges = [(-5,30),(-30,30),(-1,2),(0,4),(0.5,1),(0,1),(-2,2)] #CSU-CHILL (winter)
 #ranges = [(-5,65),(-40,40),(-3,5),(0,8),(0.5,1),(0,1),(-5,5)] #CSU-CHILL (summer)
 #ranges = [(-5,65),(-40,40),(-3,5),(0,8),(0.5,1),(0,1),(-5,5)] #CSU-CHILL (summer)
-ranges = [(-5,25),(-20,20),(-1,2),(0,4),(0.4,1),(0,1),(-60,-120),(-1.5,1.5)] #CSU-CHILL (winter)
-#ranges = [(-5,25),(-40,40),(-1,2),(0,8),(0.4,1),(0,1),(-30,-60),(-0.5,0.5)] #CSU-CHILL (winter) S-band
-#ranges = [(-25,5),(-20,20),(-2,2),(0,1),(0.25,1)] #CSU-CHILL (winter)
+#ranges = [(-5,25),(-20,20),(-1,2),(0,4),(0.4,1),(0,1),(-2,2)] #CSU-CHILL (winter)
+ranges = [(-5,25),(-20,20),(-1,2),(0,4),(0.4,1)] #CSU-CHILL (winter)
 #ranges = [(-5,25),(-20,20)] #CSU-CHILL (winter)
 #ranges = [(-5,25),(0,1)] #CSU-CHILL (winter)
 
@@ -110,11 +103,8 @@ plot_bool = True
 #x_lim = [0,75] #CSU-CHILL RHI
 #x_lim = [0,50] #CSU-CHILL is ready for its close up
 #x_lim = [0,45] #CSU-CHILL RHI
-#x_lim = [0,60] #CSU-CHILL RHI
-if scan_strat == 'PPI':
-    x_lim = [-60,60] #CSU-CHILL PPI
-if scan_strat == 'RHI':
-    x_lim = [0,60]
+x_lim = [0,60] #CSU-CHILL RHI
+#x_lim = [-60,60] #CSU-CHILL PPI
 # Numeric tuple
 #y_lim = [-375,375] #HF-S PPI
 #y_lim = #StormRanger
@@ -123,26 +113,21 @@ if scan_strat == 'RHI':
 #y_lim = [0,5] #CSU-CHILL Bragg waves RHI
 #y_lim = [0,5] #CSU-CHILL RHI (winter storms)
 #y_lim = [0,75] #CSU-CHILL RHI
-#y_lim = [0,6] #CSU-CHILL RHI
+y_lim = [0,5] #CSU-CHILL RHI
 #y_lim = [0,16] #CSU-CHILL RHI (summer)
-if scan_strat == 'PPI':
-    y_lim = [-60,60] #CSU-CHILL PPI
-    
-if scan_strat == 'RHI':
-    y_lim = [0,9]
+#y_lim = [-60,60] #CSU-CHILL PPI
 
 # List of strings (colorbar labelsl)
 #colorbar_labels = ['DBZ (dBZ)','DBZ (dBZ)','ZDR (DB)','rhoHV','PhiDP','SNR','SNR','V (m/s)'] #HF-S
 #colorbar_labels = #StormRanger
 #colorbar_labels = ['rhoHV','PhiDP','ZDR (DB)','V (m/s)','DBZ (dBZ)','Width (m/s)'] #KASPR few
 #colorbar_labels = ['rhoHV','Zdr (dB)','V (m/s)','Z (dBZ)','Spectral Width (m/s)','LDR (dB)','SNR'] #KASPR common
-colorbar_labels = ['DBZ (dBZ)','V (m/s)','ZDR (dB)','Width (m/s)','rhoHV','NCP','PhiDP (deg)','KDP (deg/km)'] #CSU-CHILL
-#colorbar_labels = ['DBZ (dBZ)','V (m/s)','ZDR (dB)','Width (m/s)','rhoHV'] #CSU-CHILL
-#colorbar_labels = ['DBZ (dBZ)','V (m/s)','ZDR (dB)','NCP','rhoHV'] #CSU-CHILL
+#colorbar_labels = ['DBZ (dBZ)','V (m/s)','ZDR (dB)','Width (m/s)','rhoHV','NCP','PhiDP'] #CSU-CHILL
+colorbar_labels = ['DBZ (dBZ)','V (m/s)','ZDR (dB)','Width (m/s)','rhoHV'] #CSU-CHILL
 #colorbar_labels = ['DBZ (dBZ)','V (m/s)'] #CSU-CHILL
 #colorbar_labels = ['DBZ (dBZ)','rhoHV'] #CSU-CHILL
 
-print("Plotting Variables section complete!")
+print "Plotting Variables section complete!"
 
 ### Dealiasing Variables ###
 # Boolean
@@ -165,15 +150,15 @@ new_name = 'dealiased_velocity' #CSU-CHILL
 nyquist_vel = 25.893 #X-band CHILL
 #nyquist_vel = 27.5039 #S-band CHILL
 
-print("Dealiasing Variables section complete!")
+print "Dealiasing Variables section complete!"
 #######################################
 
 # Adject inpath and outpath for easier writing
 inpath = inpath + '\\'
 outpath = outpath + '\\'
 
-print(inpath)
-print(outpath)
+print inpath
+print outpath
 
 # Load color maps
 # L_range is the luminance range; if the colors come out too dark then raise the minimum
@@ -185,16 +170,13 @@ LCH_zdr = colormap.LCH_Spiral(nc = 100, np = .3, offset = 0, reverse = 1, L_rang
 LCH_wid = colormap.LCH_Spiral(nc = 100, np = .3, offset = 45, reverse = 0, L_range = [max_luminance, min_luminance], name = 'LCH_wid')[0]
 Int = colormap.PID_Integer()
 IntCHILL = colormap.PID_Integer_CHILL()
-cuckooPalette = colormap.cuckoo()
-
 
 #cmaps = [LCH,LCH,LCH_zdr,'bone_r','cividis','copper','copper','seismic'] #HF-S
 #cmaps = #StormRanger
 #cmaps = ['bone_r','cividis',LCH_zdr,'seismic',LCH,LCH_wid] #KASPR few
 #cmaps = ['bone_r',LCH_zdr,'RdBu_r',LCH,LCH_wid,'inferno','copper'] #KASPR common RdBu_r
-cmaps = [LCH,'RdBu_r',LCH_zdr,LCH_wid,'bone_r','copper','magma',cuckooPalette] #CSU-CHILL
-#cmaps = [LCH,'RdBu_r',LCH_zdr,LCH_wid,'bone_r'] #CSU-CHILL
-#cmaps = [LCH,'RdBu_r',LCH_zdr,'copper','bone_r'] #CSU-CHILL
+#cmaps = [LCH,'RdBu_r',LCH_zdr,LCH_wid,'bone_r','copper','cividis'] #CSU-CHILL
+cmaps = [LCH,'RdBu_r',LCH_zdr,LCH_wid,'bone_r'] #CSU-CHILL
 #cmaps = [LCH,'RdBu_r'] #CSU-CHILL
 #cmaps = [LCH,'bone_r'] #CSU-CHILL
 
@@ -214,12 +196,12 @@ print ("Filelist complete!")
 #   Remove values outside of a given Z, PhiDP, RhoHV, NCP range
 #   Common Z ranges: (-5, 50) (KASPR), (-10, 80) (HF-S)
 #   Common PhiDP ranges: (0, 180) (HF-S)
-#   Common rhoHV ranges: (0.45, 1.2) (good for most cases)
+#   Common rhoHV ranges: (0.5, 1.2) (good for most cases)
 #   Common NCP rnages: (0.05, 1.2) (good for most cases)
 
 Z_mask = {
         "bool": False,
-        "range": (-5,45)
+        "range": (-35,25)
         }
 
 Zdr_mask = {
@@ -239,7 +221,7 @@ rhoHV_mask = {
 
 NCP_mask = {
         "bool": False,
-        "range": (0.15, 1.2)
+        "range": (0.05, 1.2)
         }
 
 SNR_mask = {
@@ -254,42 +236,11 @@ Zdr_offset = {
         }
 
 # Parse through filelist and process
-
-if __name__== '__main__':
-        length_filelist = np.size(filelist)
-        print("Processing in progress!")
-        for item in range(0,length_filelist):
-            filelist_ind=filelist[item]
-            p = Process(target=run_fun.parse_filelist,args=(filelist_ind, inpath, outpath, CHILL, fields, ranges, plot_bool, 
-                                                                            cmaps, colorbar_labels, x_lim, y_lim, scan_strat, 
-                                                                            dealias_bool, name2dealias, new_name, nyquist_vel, Z_mask, Zdr_mask, PhiDP_mask,
-                                                                            rhoHV_mask, NCP_mask, SNR_mask, Zdr_offset))
-            p.start()
-            print(p.is_alive())
-            p.join()
-            p.terminate()
-            numleft = (length_filelist - item -1)
-            print(numleft)
-            
-        print("Completed!")
-
-
-#run_fun.parse_filelist(filelist_first, inpath, outpath, CHILL, fields, ranges, plot_bool, 
-#                       cmaps, colorbar_labels, x_lim, y_lim, scan_strat, 
-#                       dealias_bool, name2dealias, new_name, nyquist_vel, Z_mask, Zdr_mask, PhiDP_mask,
-#                       rhoHV_mask, NCP_mask, SNR_mask, Zdr_offset)
-#
-#run_fun.parse_filelist(filelist_second, inpath, outpath, CHILL, fields, ranges, plot_bool, 
-#                       cmaps, colorbar_labels, x_lim, y_lim, scan_strat, 
-#                       dealias_bool, name2dealias, new_name, nyquist_vel, Z_mask, Zdr_mask, PhiDP_mask,
-#                       rhoHV_mask, NCP_mask, SNR_mask, Zdr_offset)
-#
-#                       
+run_fun.parse_filelist(filelist, inpath, outpath, CHILL, fields, ranges, plot_bool, 
+                       cmaps, colorbar_labels, x_lim, y_lim, scan_strat, 
+                       dealias_bool, name2dealias, new_name, nyquist_vel, Z_mask, Zdr_mask, PhiDP_mask,
+                       rhoHV_mask, NCP_mask, SNR_mask, Zdr_offset)
+                       
 gc.collect()
-#
-#snapshot = tracemalloc.take_snapshot()
-#top_stats = snapshot.statistics('lineno')
-#
-#print("[ Top 10 ]")
-#for stat in top_stats[:10]:
-#    print(stat)
+
+print "Completed!"

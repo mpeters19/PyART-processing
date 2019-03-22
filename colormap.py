@@ -224,7 +224,7 @@ def convert_to_grey(x, vmin, vmax):
 def cuckoo():
     cuckooBrownHue = 34
     cuckooGrayBlueHue= 174
-    cuckooPalette = seaborn.diverging_palette(cuckooGrayBlueHue,cuckooBrownHue,center='light',as_cmap=True)
+    cuckooPalette = seaborn.diverging_palette(cuckooBrownHue,cuckooGrayBlueHue,center='light',as_cmap=True)
     return cuckooPalette
 
 

@@ -51,30 +51,33 @@ def parse_filelist(filelist, inpath, outpath, CHILL, fields, ranges, plot_bool, 
                     'DR': 'corrected_differential_reflectivity',
                     'RH': 'cross_correlation_ratio',
                     'NC': 'normalized_coherent_power',
-                    'KD': 'specific_differential_phase',
+                    'DP': 'one_way_differential_phase',
+                    'KD': 'two_way_differential_phase',
                         })
+            
         else: 
             radar = pyart.io.read(fqfn)            
         
         
         ##Add custom-calculated fields
         #Add the snow rate field
-        snow_rate_bool = True;
+        snow_rate_bool = False;
         if snow_rate_bool:
             radar = calculated_fields.rasmussen_snow_rate(radar,fields)
             ranges.append((0,1.25))
             cmaps.append('viridis') #or YlGnBu
             colorbar_labels.append('Snow rate (mm/hr)')
             
-        #Add the Kdp field
-        kdp_bool = True;
+        #Add the "Kdp" field NOTE THIS IS CURSED THIS IS ACTUALLY SECOND DERIVATIVE OF PHIDP
+        kdp_bool = False;
         if kdp_bool:
-            radar = calculated_fields.two_way_differential_phase(radar,fields)
-            ranges.append((-0.25,0.25))
+            radar = calculated_fields.kdp_second_derivative(radar,fields)
+            ranges.append((-1.5,1.5))
             cuckooPalette = colormap.cuckoo()
             cmaps.append(cuckooPalette)
             colorbar_labels.append('Kdp (deg/km)')
       
+        
         # Data quality
         #   Remove values outside of a given Z, PhiDP, RhoHV, NCP range        
         if dealias_bool == False:
@@ -129,6 +132,17 @@ def parse_filelist(filelist, inpath, outpath, CHILL, fields, ranges, plot_bool, 
         
         print("Dealiasing complete!")
         
+        #Add the vertical derivative of dealiased velocity field - RHI only
+        vdiv_bool = True # vdiv cannot be calculated in this way for PPIs
+        if scan_strat == 'PPI':
+            vdiv_bool = False
+        if vdiv_bool:
+            radar = calculated_fields.velocity_vertical_divergence(radar,fields)
+            #ranges.append((0,3)) # X
+            ranges.append((0,3)) # S
+            cmaps.append('inferno')
+            colorbar_labels.append('|vDiv| ms^(-1)/gate')
+        
         radar = quality_control.removeMountainClutter(radar,fields)
         
         #for sweep_number
@@ -136,7 +150,9 @@ def parse_filelist(filelist, inpath, outpath, CHILL, fields, ranges, plot_bool, 
         
         # Set figure sizes
         if scan_strat == 'RHI':
-            figsize = [40,6]#[40,6]#[40,12]#[14.66, 3.652]#[40, 12]#[49.82, 4]#[43.6, 3.5]#30,4 #25,4
+            #for 0 to 6 km use [40,6]
+            #for 0 to 9 km use [42,8]
+            figsize = [42,8]#[40,6]#[40,12]#[14.66, 3.652]#[40, 12]#[49.82, 4]#[43.6, 3.5]#30,4 #25,4
         else:
             figsize = [16,16] #Same settings used for PPI and sector scans [16.346, 12]
         

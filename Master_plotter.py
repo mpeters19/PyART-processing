@@ -4,7 +4,7 @@ Created on Fri May 30 15:06:17 2014
 
 @author: thecakeisalie
 
-Version date: 11/1/2018
+Version date: 3/20/2019
 Daniel Hueholt
 North Carolina State University
 Undergraduate Research Assistant at Environment Analytics
@@ -18,6 +18,29 @@ from matplotlib import pyplot as plt
 import gen_fun
 import quality_control
 import math
+import scipy.ndimage as spyi
+import time as time
+import pickle
+import io
+
+
+def contour_overlay(radar, sweepnum, contourField, baseField,ax,total_text,contourValues):
+    dataToContourRaw = radar.get_field(sweepnum,contourField)
+    x,y,height = radar.get_gate_x_y_z(sweepnum,edges=False)
+    x/=1000.0
+    y/=1000.0
+    height/=1000.0
+    dataCoord = np.sqrt(x**2+y**2)*np.sign(y)
+    dataCoord = -dataCoord
+    dataToContourSmooth = spyi.gaussian_filter(dataToContourRaw,sigma=1.2)
+    contours=ax.contour(dataCoord,height,dataToContourSmooth,contourValues,linewidths=1.5,colors=('blue','white','red','orange','yellow'),linestyles='solid',antialiased=True)
+    contoured_field_is = 'Contoured field is ';
+    long_spacer = '     '
+    total_text = total_text+long_spacer+contoured_field_is+contourField
+    plt.clabel(contours,contourValues,fmt='%r',inline=True,fontsize=20) #%r
+    #print("Contour section completed!")
+    
+    return total_text
 
    
 def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps, 
@@ -151,14 +174,41 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
                     
                 if scan_strat == 'RHI':
                     display.plot_rhi(field,sweepnum,vmin=vmin,vmax=vmax,title_flag=title_flag,cmap=cmap,axislabels=(axis, 'AGL (km)'),colorbar_flag=True,colorbar_label=colorbar_label)
+                    
+                    contourBool = True
+                    contourField = False
+                    #baseField = 'corrected_differential_reflectivity'
+                    if contourBool==True and field=='corrected_differential_reflectivity':
+                        contourField = 'reflectivity'
+                        #buf = io.BytesIO()
+                        #pickle.dump(fig, buf)
+                        #buf.seek(0)
+                        #figNoContour = pickle.load(buf)
+                        total_text = contour_overlay(radar,sweepnum,contourField,'corrected_differential_reflectivity',ax,total_text,[0,5,10,15,20])
+
+  
+
+                    #if contourBool==True and field=='spectrum_width':
+                    #    contourField = 'reflectivity'
+                    #    total_text = contour_overlay(radar,sweepnum,contourField,'spectrum_width',ax,total_text,[0,5,10,15,20])
+                    #if contourBool==True and field=='dealiased_velocity':
+                    #    contourField = 'reflectivity'
+                    #    total_text = contour_overlay(radar,sweepnum,contourField,'dealiased_velocity',ax,total_text,[0,5,10,15,20])
+                    
                     display.set_limits(ylim=y_lim)
                     display.set_limits(xlim=x_lim)
                     display.set_aspect_ratio(aspect_ratio=1) #important!!
                     plt.yticks(np.arange(0,y_lim[1]+1,step=1))
+
                     
                     if metadisp:
                         labeled = 'labeled_'                        
-                        plt.figtext(0.38,0.88,total_text,caption_dict) #Place the metatext in the figure
+                        #plt.figtext(0.38,0.88,total_text,caption_dict) #Place the metatext in the figure 20180210
+                        #plt.figtext(0.38,0.906,total_text,caption_dict) #Place the metatext in the figure most
+                        plt.figtext(0.38,0.915,total_text,caption_dict) #Place the metatext in the figure 20130409
+                        
+
+                        
                 else:
                         display.plot_ppi(field, sweepnum, vmin = vmin, vmax = vmax, title_flag = title_flag, cmap = cmap, axislabels = (axis, "N-S distance (km)"),colorbar_flag=True, colorbar_label = colorbar_label)
 
@@ -208,13 +258,25 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
                         #plt.plot([0,81.6],[0,38.0],color='#105456',linewidth=5) #azi = 25
                         #plt.plot([0,-83.1],[0,34.4],color='#105456',linewidth=5) #azi = 292.5
                         
+                        #plt.plot([0,-70.9],[0,24.4],color='#105456',linewidth=5) #azi = 289
+                        #plt.plot([0,24.4],[0,70.9],color='#105456',linewidth=5) #azi = 19
+                        #plt.plot([0,68.5],[0,30.5],color='#105456',linewidth=5) #azi = 24
                         #plt.plot([0,87.7],[0,-20.2],color='#105456',linewidth=5) #azi = 103
                         #plt.plot([0,64.7],[0,-62.5],color='#105456',linewidth=5) #azi = 134
+                        #plt.plot([0,13.02],[0,-73.86],color='#105456',linewidth=5) #azi = 170
                         
-                        plt.plot([0,-64.95],[0,37.5],color='#105456',linewidth=5) #azi = 300
-                        plt.plot([0,-25.65],[0,-70.48],color='#105456',linewidth=5) #azi = 200
-                        plt.plot([0,48.2],[0,-57.45],color='#105456',linewidth=5) #azi = 145
-                        plt.plot([0,64.95],[0,-37.5],color='#105456',linewidth=5) #azi = 120
+                        #plt.plot([0,-64.95],[0,37.5],color='#105456',linewidth=5) #azi = 300 NOTE also same as azi=299 to two decimals
+                        #plt.plot([0,-68],[0,31.7],color='#105456',linewidth=5) #azi = 295 NOTE also used as azi=294
+                        #plt.plot([0,-25.65],[0,-70.48],color='#105456',linewidth=5) #azi = 200
+                        #plt.plot([0,48.2],[0,-57.45],color='#105456',linewidth=5) #azi = 145
+                        #plt.plot([0,64.95],[0,-37.5],color='#105456',linewidth=5) #azi = 120
+                        
+                        #plt.plot([0,-6.53],[0,-74.71],color='#105456',linewidth=5) #azi = 185
+                        #plt.plot([0,-74.82],[0,5.23],color='#105456',linewidth=5) #azi = 274
+                        
+                        plt.plot([0,-70],[0,0],color='#105456',linewidth=5) #azi=270 NOTE also used for azi = 271
+                        plt.plot([0,29.3],[0,-69],color='#105456',linewidth=5) #azi=157
+                        plt.plot([0,-65],[0,-37],color='#105456',linewidth=5) #azi=240 NOTE also used for azi = 243 and azi = 242 and azi = 239
                         
 
                         display.set_limits(ylim=y_lim)
@@ -238,7 +300,7 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
 #            for item in ([ax.xaxis.label]):
 #                item.set_fontsize(0)
             
-            
+  
             try:
                 if KASPR==True:
                     raise ValueError #This is some dark magick but it's Hallowe'en so thematic I guess??
@@ -246,8 +308,12 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
             except:
                 #print "Name is not ROSE or WSR88D compatible. Using generic save name."
                 if scan_strat == 'RHI':
-                    if metadisp:
+                    if metadisp==True and contourField==False:
                         save_name = "%s%s%s.azi%d.%s.%d.png" %(outpath, labeled, filename, azi, field, sweepnum)
+                    elif metadisp==True and contourField!=False:
+                        #conText = 'contour'
+                        save_name = "%s%s%s.azi%d.%s.contour%s.%d.png" %(outpath, labeled, filename, azi, field, contourField, sweepnum)
+ #                       save_name_no_contour = "%s%s%s.azi%d.%s.%d.png" %(outpath, labeled, filename, azi, field, sweepnum)
                     else:
                         save_name = "%s%s.azi%d.%s.%d.png" %(outpath, filename, azi, field, sweepnum)
                 else:
@@ -261,13 +327,20 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
             plt.close('all')
             fig.tight_layout()
             fig.savefig(save_name)
+#            if contourField!=False:
+#                figNoContour.tight_layout()
+#                fig.savefig(save_name)
+#                figNoContour.savefig(save_name_no_contour)
             del display
+            #del contourField
             gc.collect()
             
         print ("%s %d" % ('Sweep number', sweepnum))
         del azi
         del fig
         
+        
         gc.collect()
-
-               
+        
+   
+    

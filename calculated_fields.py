@@ -59,10 +59,11 @@ def rasmussen_snow_rate(radar, radar_fieldnames):
     return radar
     return radar_fieldnames
 
-def two_way_differential_phase(radar, radar_fieldnames):
+def kdp_second_derivative(radar, radar_fieldnames):
     """
-    DESCRIPTION: Calculates the two-way differential phase (Kdp)
-    then adds said field to the radar object.
+    DESCRIPTION: Calculates the derivative of the two-way differential phase (Kdp)
+    then adds said field to the radar object. Is this useful? Probably not!! But I thought
+    this was calculating the actual Kdp at first so here we are
     
     NOTE THAT THE NEW FIELD IS NOT FORMATTED EXACTLY THE SAME AS A NORMAL PYART DATA FIELD
     PyART data fields are by default masked arrays with a data, mask, and fill_value component. The new 
@@ -90,6 +91,21 @@ def two_way_differential_phase(radar, radar_fieldnames):
     
     radar.add_field_like('reflectivity','kdp',kdp,replace_existing=False)
     radar_fieldnames.append('kdp')
+    
+    return radar
+    return radar_fieldnames
+
+def velocity_vertical_divergence(radar, radar_fieldnames):
+    vdiv = radar.fields['dealiased_velocity']['data'].data
+    
+    # Take the derivative with respect to height
+    vdiv = np.diff(vdiv,n=1,axis=0) #Python matrices start at 0
+    # Pad the matrix to replace the missing row
+    vdiv = np.pad(vdiv,[(0,1),(0,0)],'constant',constant_values=(np.nan))
+    vdiv = np.abs(vdiv)
+    
+    radar.add_field_like('reflectivity','vdiv',vdiv,replace_existing=False)
+    radar_fieldnames.append('vdiv')
     
     return radar
     return radar_fieldnames
