@@ -16,7 +16,7 @@ import time
 import numpy as np
 
 def dealias(radar, filename, outpath, name2dealias, new_name, nyquist_vel, 
-            skip_along_ray, skip_between_rays, savefile=True):
+            skip_along_ray, skip_between_rays, despeckle, savefile=True):
     """
     DESCRIPTION: Dealiases a specified field using the PyART
         dealiased_region_based function and can save off a separate cfradial 
@@ -63,7 +63,7 @@ def dealias(radar, filename, outpath, name2dealias, new_name, nyquist_vel,
         radar = radar.extract_sweeps(good)
     
     # Dealias and add new dealiased field to radar object    
-    corr_vel = pyart.correct.dealias_region_based(radar,vel_field=name2dealias,nyquist_vel=nyquist_vel,skip_along_ray=skip_along_ray,skip_between_rays=skip_between_rays,gatefilter=False,keep_original=False)
+    corr_vel = pyart.correct.dealias_region_based(radar,vel_field=name2dealias,nyquist_vel=nyquist_vel,skip_along_ray=skip_along_ray,skip_between_rays=skip_between_rays,gatefilter=despeckle,keep_original=False)
     radar.add_field(new_name, corr_vel, True)
     print("Dealiasing complete in current file!")
        

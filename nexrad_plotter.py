@@ -106,8 +106,7 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
             gc.collect()
             
             # Make radar display
-            display = pyart.graph.RadarDisplay(radar)            
-#            display = pyart.graph.RadarMapDisplayCartopy(radar)
+            display = pyart.graph.RadarMapDisplayCartopy(radar)
             
             # Clear any figures that might be open and close them
             plt.clf()
@@ -128,9 +127,9 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
 #               This is controlled by manual logical variables below, but will be updated to reflect the obvious improvements below:
 #                   set the radar type in start_script
 #                   need to make metatext for other radars besides CHILL and KASPR, especially HF-S and StormRanger
-                CHILL = True
+                CHILL = False
                 KASPR = False
-                NEXRAD = False
+                NEXRAD = True
                 if CHILL:
                     y_text = filename[3:7]
                     m_text = filename[7:9]
@@ -200,8 +199,10 @@ def plot(radar, filename, outpath, scan_strat, fields, ranges, cmaps,
 
                         
                 else:
-                        display.plot_ppi(field, sweepnum, vmin = vmin, vmax = vmax, title_flag = title_flag, cmap = cmap, axislabels = (axis, "N-S distance (km)"),colorbar_flag=True, colorbar_label = colorbar_label)
-                        #display.plot_ppi_map(field, sweepnum, vmin = vmin, vmax = vmax, title_flag = title_flag, cmap = cmap, colorbar_flag=True, colorbar_label = colorbar_label,min_lon=-77.7,max_lon=-76.5,min_lat=34.2,max_lat=36.5,projection='lcc',resolution='h')
+                        print(vmin)
+                        print(vmax)
+                        display.plot_ppi_map(field, sweepnum,mask_tuple=None, vmin = vmin, vmax = vmax, cmap=cmap, norm=None, title_flag = title_flag, colorbar_flag=True, colorbar_label = colorbar_label,min_lon=-77.7,max_lon=-76.5,min_lat=34.2,max_lat=36.5)
+
                         #Sector scan
                         if scan_strat != 'PPI':
                             #The edges of the sector are calculated using trigonometry

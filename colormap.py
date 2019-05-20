@@ -6,6 +6,8 @@ Created on Mon Jun 23 15:06:14 2014
 
 make_colormap by StackOverflow user unutbu
 
+Updated 3/22/2019
+
 """
 
 import numpy as nump
@@ -15,6 +17,8 @@ from matplotlib import pyplot as plt
 from matplotlib import colors
 import sys
 import seaborn
+
+
 
 def LCH_Spiral(nc = 100, np = .4, offset = 30, reverse = 1, L_range = [100, 0], name = 'LCH'):
 
@@ -156,8 +160,17 @@ def PID_Integer_CHILL():
     #colors_hex = ['#30006A', '#440984', '#59199E', '#6F2AB4', '#853DC6', '#9B51D5', '#B066DF', '#C37DE5', '#D595E6', '#E5AEE3', '#F2C9DB', '#FFFFFF']
     colors_hex = ['#779CF6','#8079C7','#795898','#683C6C','#321023','#7C2742','#A4344C','#CC4552','#F35953']
     
-    cmap_PID = colors.ListedColormap(colors_hex, name = 'PID')    
+    cmap_PID = colors.ListedColormap(colors_hex, name = 'PID')
+
+    return cmap_PID    
     
+
+def contourColors():
+    
+    colors_hex = ['#AE3135','#EEA2AD','#660066','#66B2B2','#FFE4C4','#E0E8D5']
+                  
+    cmap_contourColors = colors.ListedColormap(colors_hex, name = 'contourColors')
+
     
 #    colors_RGB = []
 #    for i in range(0, nump.size(colors_hex)):
@@ -175,7 +188,7 @@ def PID_Integer_CHILL():
 #    plt.colorbar()
 #    plt.title('Plot of x+y using colormap')
  
-    return cmap_PID
+    return cmap_contourColors
     
 def Vel1():
     

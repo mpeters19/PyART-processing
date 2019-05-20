@@ -26,7 +26,7 @@ Created on Thu Aug 06 14:01:55 2015
 
 @author: thecakeisalie
 
-Version date: 01/29/2019
+Version date: 04/21/2019
 Daniel Hueholt
 North Carolina State University
 Undergraduate Research Assistant at Environment Analytics
@@ -45,8 +45,8 @@ from multiprocessing import Process
 
 ######### Define Variables #############
 ### Path Variables (strings)
-inpath = 'H:\\store radar files\\CSU-CHILL\\20180210\\X\\RHI'
-outpath = 'H:\\radar output\\testImages\\contours\\'
+inpath = 'H:\\store radar files\\CSU-CHILL\\20180121\\p2\\PPI\\'
+outpath = 'H:\\radar output\\testImages\\1_gatefilter\\'
 
 ### File and Data Variables ###
 
@@ -57,14 +57,15 @@ wildcard = 'CHX' #Common wildcards are below
 #KASPR: SBU Ka-band
 #CHX: CSU-CHILL X-band
 #CHL: CSU-CHILL S-band
+# Use start_script_NEXRAD script to process NEXRAD data
 
 # Special import specifiers
 CHILL = True #CHILL files use a special variant of the UF format; this tells PyART to use the correct fieldname mapping
 
 # String
-scan_strat = 'RHI' #Possible entries are below
+scan_strat = 'PPI' #Possible entries are below
 #PPI: Plan view at a specific angle
-#Sector: Plan view at a confined set of azimuths
+#Sector: Plan view at a confined set of azimuths, IN PROGRESS
 #RHI: Cross section along a specific azimuth
 # PyART can be used with other scan strategies but these are not yet supported in this toolkit.
 
@@ -76,25 +77,15 @@ scan_strat = 'RHI' #Possible entries are below
 #CSU-CHILL: ['reflectivity','corrected_velocity','corrected_differential_reflectivity','spectrum_width','cross_correlation_ratio','normalized_coherent_power','specific_differential_phase']
 
 fields = ['reflectivity','dealiased_velocity','corrected_differential_reflectivity','spectrum_width','cross_correlation_ratio','normalized_coherent_power','one_way_differential_phase','two_way_differential_phase']
-#fields = ['reflectivity','dealiased_velocity','corrected_differential_reflectivity','spectrum_width','cross_correlation_ratio']
-#fields = ['reflectivity','dealiased_velocity','corrected_differential_reflectivity','normalized_coherent_power','cross_correlation_ratio']
-#fields = ['reflectivity','dealiased_velocity']
-#fields = ['reflectivity','cross_correlation_ratio']
 
 # List of numeric tuples (ranges for data)
 # ORDER OF THESE MUST MATCH ORDER OF FIELDS
 #ranges = [(0,60),(0,60),(-20,0),(0,1),(0,180),(0,1),(0,1),(-40,40)] #HF-S, with broken Zdr
 #ranges = #StormRanger
 #ranges = [(0.5,1),(-2,2),(-35,35),(-5,40),(0,3),(-40,-20),(0,100)] #KASPR (commonly-used) (winter)
-#ranges = [(-5,35), (-30,30),(-2,2),(0,5),(0,1.2),(0,1),(-15,15)] #CSU-CHILL (winter)
-#ranges = [(-5,30),(-30,30),(-1,2),(0,4),(0.5,1),(0,1),(-2,2)] #CSU-CHILL (winter)
-#ranges = [(-5,65),(-40,40),(-3,5),(0,8),(0.5,1),(0,1),(-5,5)] #CSU-CHILL (summer)
 #ranges = [(-5,65),(-40,40),(-3,5),(0,8),(0.5,1),(0,1),(-5,5)] #CSU-CHILL (summer)
 ranges = [(-5,25),(-20,20),(-1,2),(0,4),(0.4,1),(0,1),(-60,-120),(-1.5,1.5)] #CSU-CHILL (winter)
 #ranges = [(-5,25),(-40,40),(-1,2),(0,8),(0.4,1),(0,1),(-30,-60),(-0.5,0.5)] #CSU-CHILL (winter) S-band
-#ranges = [(-25,5),(-20,20),(-2,2),(0,1),(0.25,1)] #CSU-CHILL (winter)
-#ranges = [(-5,25),(-20,20)] #CSU-CHILL (winter)
-#ranges = [(-5,25),(0,1)] #CSU-CHILL (winter)
 
 ### Plotting Variables ###
 
@@ -108,9 +99,6 @@ plot_bool = True
 #x_lim = [0,30] #KASPR RHI
 #x_lim = [0,50] #CSU-CHILL Bragg waves RHI
 #x_lim = [0,75] #CSU-CHILL RHI
-#x_lim = [0,50] #CSU-CHILL is ready for its close up
-#x_lim = [0,45] #CSU-CHILL RHI
-#x_lim = [0,60] #CSU-CHILL RHI
 if scan_strat == 'PPI':
     x_lim = [-60,60] #CSU-CHILL PPI
 if scan_strat == 'RHI':
@@ -121,9 +109,6 @@ if scan_strat == 'RHI':
 #y_lim = [-30,30] #KASPR PPI
 #y_lim = [0,8] #KASPR RHI
 #y_lim = [0,5] #CSU-CHILL Bragg waves RHI
-#y_lim = [0,5] #CSU-CHILL RHI (winter storms)
-#y_lim = [0,75] #CSU-CHILL RHI
-#y_lim = [0,6] #CSU-CHILL RHI
 #y_lim = [0,16] #CSU-CHILL RHI (summer)
 if scan_strat == 'PPI':
     y_lim = [-60,60] #CSU-CHILL PPI
@@ -164,6 +149,7 @@ new_name = 'dealiased_velocity' #CSU-CHILL
 #nyquist_vel= 9.999 #KASPR
 nyquist_vel = 25.893 #X-band CHILL
 #nyquist_vel = 27.5039 #S-band CHILL
+#nyquist_vel = 26.389
 
 print("Dealiasing Variables section complete!")
 #######################################

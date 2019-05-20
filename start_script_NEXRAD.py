@@ -40,13 +40,13 @@ import gc
 
 ######### Define Variables #############
 ### Path Variables (strings)
-inpath = 'H:\\store radar files\\CSU-CHILL\\20180210\\X\\RHI\\'
-outpath = 'H:\\radar output\\testImages\\'
+inpath = 'F:\\444_NEXRAD\\' #'H:\\store radar files\\NEXRAD\\KFTG\\untarred\\'
+outpath = 'F:\\444_NEXRAD\\output\\'#'H:\\radar output\\NEXRAD\\KFTG\\20180201\\'
 
 ### File and Data Variables ###
 
 # String
-wildcard = 'CHX' #Common wildcards are below
+wildcard = 'KLTX' #Common wildcards are below
 #KXA: Dallas HF-S
 #KXAS: NBC5 StormRanger
 #KASPR: SBU Ka-band
@@ -54,10 +54,10 @@ wildcard = 'CHX' #Common wildcards are below
 #CHL: CSU-CHILL S-band
 
 # Special import specifiers
-CHILL = True #CHILL files use a special variant of the UF format; this tells PyART to use the correct fieldname mapping
+CHILL = False #CHILL files use a special variant of the UF format; this tells PyART to use the correct fieldname mapping
 
 # String
-scan_strat = 'RHI' #Possible entries are below
+scan_strat = 'PPI' #Possible entries are below
 #PPI: Plan view at a specific angle
 #Sector: Plan view at a confined set of azimuths
 #RHI: Cross section along a specific azimuth
@@ -71,9 +71,7 @@ scan_strat = 'RHI' #Possible entries are below
 #CSU-CHILL: ['reflectivity','corrected_velocity','corrected_differential_reflectivity','spectrum_width','cross_correlation_ratio','normalized_coherent_power','specific_differential_phase']
 
 #fields = ['reflectivity','dealiased_velocity','corrected_differential_reflectivity','spectrum_width','cross_correlation_ratio','normalized_coherent_power','specific_differential_phase']
-fields = ['reflectivity','dealiased_velocity','corrected_differential_reflectivity','spectrum_width','cross_correlation_ratio']
-#fields = ['reflectivity','dealiased_velocity']
-#fields = ['reflectivity','cross_correlation_ratio']
+fields = ['reflectivity','dealiased_velocity','spectrum_width','cross_correlation_ratio','differential_reflectivity']#,'dealiased_velocity','spectrum_width']
 
 # List of numeric tuples (ranges for data)
 # ORDER OF THESE MUST MATCH ORDER OF FIELDS
@@ -85,7 +83,7 @@ fields = ['reflectivity','dealiased_velocity','corrected_differential_reflectivi
 #ranges = [(-5,65),(-40,40),(-3,5),(0,8),(0.5,1),(0,1),(-5,5)] #CSU-CHILL (summer)
 #ranges = [(-5,65),(-40,40),(-3,5),(0,8),(0.5,1),(0,1),(-5,5)] #CSU-CHILL (summer)
 #ranges = [(-5,25),(-20,20),(-1,2),(0,4),(0.4,1),(0,1),(-2,2)] #CSU-CHILL (winter)
-ranges = [(-5,25),(-20,20),(-1,2),(0,4),(0.4,1)] #CSU-CHILL (winter)
+ranges = [(-5,50),(-50,50),(0,12),(0,1),(-4,4)]#,(-20,20),(-1,2),(0,4),(0.4,1)] #
 #ranges = [(-5,25),(-20,20)] #CSU-CHILL (winter)
 #ranges = [(-5,25),(0,1)] #CSU-CHILL (winter)
 
@@ -97,25 +95,9 @@ plot_bool = True
 # Numeric tuple
 #x_lim = [-375,375] #HF-S PPI
 #x_lim =  #StormRanger
-#x_lim = [-30,30] #KASPR PPI
-#x_lim = [0,30] #KASPR RHI
-#x_lim = [0,50] #CSU-CHILL Bragg waves RHI
-#x_lim = [0,75] #CSU-CHILL RHI
-#x_lim = [0,50] #CSU-CHILL is ready for its close up
-#x_lim = [0,45] #CSU-CHILL RHI
-x_lim = [0,60] #CSU-CHILL RHI
-#x_lim = [-60,60] #CSU-CHILL PPI
+x_lim = [-150,150] #NEXRAD PPI
 # Numeric tuple
-#y_lim = [-375,375] #HF-S PPI
-#y_lim = #StormRanger
-#y_lim = [-30,30] #KASPR PPI
-#y_lim = [0,8] #KASPR RHI
-#y_lim = [0,5] #CSU-CHILL Bragg waves RHI
-#y_lim = [0,5] #CSU-CHILL RHI (winter storms)
-#y_lim = [0,75] #CSU-CHILL RHI
-y_lim = [0,5] #CSU-CHILL RHI
-#y_lim = [0,16] #CSU-CHILL RHI (summer)
-#y_lim = [-60,60] #CSU-CHILL PPI
+y_lim = [-150,150] #NEXRAD PPI
 
 # List of strings (colorbar labelsl)
 #colorbar_labels = ['DBZ (dBZ)','DBZ (dBZ)','ZDR (DB)','rhoHV','PhiDP','SNR','SNR','V (m/s)'] #HF-S
@@ -123,11 +105,11 @@ y_lim = [0,5] #CSU-CHILL RHI
 #colorbar_labels = ['rhoHV','PhiDP','ZDR (DB)','V (m/s)','DBZ (dBZ)','Width (m/s)'] #KASPR few
 #colorbar_labels = ['rhoHV','Zdr (dB)','V (m/s)','Z (dBZ)','Spectral Width (m/s)','LDR (dB)','SNR'] #KASPR common
 #colorbar_labels = ['DBZ (dBZ)','V (m/s)','ZDR (dB)','Width (m/s)','rhoHV','NCP','PhiDP'] #CSU-CHILL
-colorbar_labels = ['DBZ (dBZ)','V (m/s)','ZDR (dB)','Width (m/s)','rhoHV'] #CSU-CHILL
+colorbar_labels = ['DBZ (dBZ)','V (m/s)','Width (m/s)','rhoHV','Zdr (dB)'] #CSU-CHILL
 #colorbar_labels = ['DBZ (dBZ)','V (m/s)'] #CSU-CHILL
 #colorbar_labels = ['DBZ (dBZ)','rhoHV'] #CSU-CHILL
 
-print "Plotting Variables section complete!"
+print("Plotting Variables section complete!")
 
 ### Dealiasing Variables ###
 # Boolean
@@ -137,7 +119,7 @@ dealias_bool = True
 #name2dealias = 'VELH' #HF-S
 #name2dealias = #StormRanger
 #name2dealias = 'mean_doppler_velocity_folded' #KASPR
-name2dealias = 'corrected_velocity' #CSU-CHILL
+name2dealias = 'velocity' #NEXRAD, hopefully
 # String
 #new_name = 'dealiasVELH' #HF-S
 #new_name = #StormRanger
@@ -147,18 +129,17 @@ new_name = 'dealiased_velocity' #CSU-CHILL
 # Numeric value; if working with ROSE data, set to None. 
 #nyquist_vel = 8.5048 #HF-S
 #nyquist_vel= 9.999 #KASPR
-nyquist_vel = 25.893 #X-band CHILL
-#nyquist_vel = 27.5039 #S-band CHILL
+nyquist_vel = 26.389 #KCYS 2018 02 01
 
-print "Dealiasing Variables section complete!"
+print("Dealiasing Variables section complete!")
 #######################################
 
 # Adject inpath and outpath for easier writing
 inpath = inpath + '\\'
 outpath = outpath + '\\'
 
-print inpath
-print outpath
+print(inpath)
+print(outpath)
 
 # Load color maps
 # L_range is the luminance range; if the colors come out too dark then raise the minimum
@@ -176,7 +157,7 @@ IntCHILL = colormap.PID_Integer_CHILL()
 #cmaps = ['bone_r','cividis',LCH_zdr,'seismic',LCH,LCH_wid] #KASPR few
 #cmaps = ['bone_r',LCH_zdr,'RdBu_r',LCH,LCH_wid,'inferno','copper'] #KASPR common RdBu_r
 #cmaps = [LCH,'RdBu_r',LCH_zdr,LCH_wid,'bone_r','copper','cividis'] #CSU-CHILL
-cmaps = [LCH,'RdBu_r',LCH_zdr,LCH_wid,'bone_r'] #CSU-CHILL
+cmaps = [LCH,'RdBu_r',LCH_wid,'bone_r',LCH_zdr]#,'RdBu_r',LCH_zdr,LCH_wid,'bone_r'] #CSU-CHILL
 #cmaps = [LCH,'RdBu_r'] #CSU-CHILL
 #cmaps = [LCH,'bone_r'] #CSU-CHILL
 
@@ -215,7 +196,7 @@ PhiDP_mask = {
         }
 
 rhoHV_mask = {
-        "bool": True,
+        "bool": False,
         "range": (0.45, 1.2)
         }
 
@@ -243,4 +224,4 @@ run_fun.parse_filelist(filelist, inpath, outpath, CHILL, fields, ranges, plot_bo
                        
 gc.collect()
 
-print "Completed!"
+print("Completed!")
