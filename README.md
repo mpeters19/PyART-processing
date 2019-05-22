@@ -1,18 +1,24 @@
 # PyART Processing
 
-Environment Analytics software written to aid in the processing, analysis, and visualization of radar software through the ARM PyART python package. Functions and documentation were written by Sara Berry in 2015. Software was updated and uploaded to Github by Daniel Hueholt in 2018.
+Environment Analytics software written to aid in the processing, analysis, and visualization of radar software through the ARM PyART python package. Functions and documentation were originally created by Sara Berry in 2015. Software has been maintained by Daniel Hueholt since 2018.
 
 ---EnvAn PyART processing toolkit:
 
-colormap: Contains functions controlling colormaps for reflectivity, velocity, differential reflectivity, spectral width, and one-way differential propagation phase.
+calculated_fields: Functions to derive variables such as vertical divergence of horizontal velocity or the Rasmussen snow rate from observed fields.
+
+colorbars: Saves example colorbars for the colormaps in colormap. Useful for posters and presentations.
+
+colormap: Contains functions controlling colormaps. Includes Matthew Miller's "LCH_spiral" luminance-conserving colormap.
 
 gen_fun: Miscellaneous functions for tasks such as parsing a list of files or generating an image filename.
 
-Master_plotter.py: Plots and saves Plan Position Indicator (PPI) and/or Range Height Indicator (RHI) images for a given field.
+Master_plotter.py: Plots and saves Plan Position Indicator (PPI) or Range Height Indicator (RHI) images for a given field. Also handles contour overlays, file naming, and similar tasks.
 
-quality_control: Multiple functions, including the dealiasing function.
+quality_control: Contains many quality control functions, including the dealiasing manager, noise masks, and mountain removal.
 
-start_script: "Just set the variables and press PLAY!" -Sara Berry
+run_fun: Manages the processing of radar data using the ARM PyART package and various custom tools.
+
+start_script: Sets variables and instantiates a child process in which run_fun can take place.
 
 ---MODIFIED Py-ART files
 
