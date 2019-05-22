@@ -2,8 +2,9 @@
 
 Environment Analytics software written to aid in the processing, analysis, and visualization of radar software through the ARM PyART python package. Functions and documentation were originally created by Sara Berry in 2015. Software has been maintained by Daniel Hueholt since 2018.
 
-## Environment Analytics PyART processing toolkit:
-
+## Code description
+------
+### Environment Analytics PyART processing toolkit
 **calculated_fields**: Functions to derive variables such as vertical divergence of horizontal velocity or the Rasmussen snow rate from observed fields.
 
 **colorbars**: Saves example colorbars for the colormaps in colormap. Useful for posters and presentations.
@@ -20,6 +21,6 @@ Environment Analytics software written to aid in the processing, analysis, and v
 
 **start_script**: Sets variables and instantiates a child process in which run_fun can take place.
 
-## Modified PyART files
+### Modified PyART files
 
 nexrad_level2: Updated to use np.frombuffer instead of np.fromstring, which is now deprecated.
