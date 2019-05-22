@@ -23,7 +23,7 @@ import time
 import colormap
 
 
-def contour_overlay(radar, sweepnum, contourField, baseField, ax, total_text, contourValues):
+def contour_overlay(radar, sweepnum, contourField, baseField, ax, total_text, contourValues, scan_strat):
     """
     DESCRIPTION: Overlays contours on a plot of a different data type.
     
@@ -36,6 +36,7 @@ def contour_overlay(radar, sweepnum, contourField, baseField, ax, total_text, co
     ax = The plot in question.
     total_text = Text for the plot title.
     contourValues = Numpy array of desired values at which to draw contours
+    scan_strat = RHI and PPIs require different approaches for contouring
     
     Written by Daniel Hueholt
     Undergraduate Research Assistant at Environment Analytics
@@ -52,10 +53,12 @@ def contour_overlay(radar, sweepnum, contourField, baseField, ax, total_text, co
         dataCoord = -dataCoord
 
     dataToContourSmooth = spyi.gaussian_filter(dataToContourRaw,sigma=1.2)
-    #contours=ax.contour(dataCoord,height,dataToContourSmooth,contourValues,linewidths=1.5,colors=['blue','white'],linestyles='solid',antialiased=True)
     # Draw contours
     contourColormap = colormap.contourColors()
-    contours=ax.contour(dataCoord,height,dataToContourSmooth,contourValues,linewidths=1.5,cmap=contourColormap,linestyles='solid',antialiased=True)
+    if scan_strat=='RHI':
+        contours=ax.contour(dataCoord,height,dataToContourSmooth,contourValues,linewidths=1.5,cmap=contourColormap,linestyles='solid',antialiased=True)
+    else:
+        contours=ax.contour(x,y,dataToContourSmooth,contourValues,linewidths=1.5,cmap=contourColormap,linestyles='solid',antialiased=True)
     contoured_field_is = 'Contoured field is ';
     long_spacer = '     '
     total_text = total_text+long_spacer+contoured_field_is+contourField
@@ -211,7 +214,7 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                     ## Contour overlay code
                     if contour_bool:
                         if field==base_field:
-                            total_text = contour_overlay(radar,sweepnum,contour_field,base_field,ax,total_text,contour_levels)
+                            total_text = contour_overlay(radar,sweepnum,contour_field,base_field,ax,total_text,contour_levels,scan_strat)
                     ##
                     
                     display.set_limits(ylim=y_lim)
@@ -229,7 +232,7 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                         ## Contour overlay code
                         if contour_bool:
                             if field==base_field:
-                                total_text = contour_overlay(radar,sweepnum,contour_field,base_field,ax,total_text,contour_levels)
+                                total_text = contour_overlay(radar,sweepnum,contour_field,base_field,ax,total_text,contour_levels,scan_strat)
                         ##
                         
                         #Sector scan PARTIALLY IMPLEMENTED
@@ -304,7 +307,10 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                         
                         if metadisp:
                             labeled = 'labeled_'
-                            plt.figtext(0.17,0.905,total_text,caption_dict) #Title the figure with the metatext
+                            if radar_type=='NEXRAD' and contour_bool==True:
+                                plt.figtext(0.1,0.905,total_text,caption_dict) #Title the figure with the metatext
+                            else:
+                                plt.figtext(0.17,0.905,total_text,caption_dict) #Title the figure with the metatext
                             
             except ValueError:
                 print("Error in sweep!") #Prevents the plotter from failing silently on a large number of files

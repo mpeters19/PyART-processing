@@ -43,15 +43,15 @@ from multiprocessing import Process
 
 ######### Define Variables #############
 ### Path Variables (strings)
-inpath = 'H:\\store radar files\\KASPR\\20180104\\RHI'
-#inpath = 'H:\\store radar files\\CSU-CHILL\\20180201\\X\\RHI\\'
+#inpath = 'H:\\store radar files\\KASPR\\20180104\\PPI'
+inpath = 'H:\\store radar files\\CSU-CHILL\\20180201\\X\\PPI\\'
 #inpath = 'H:\\store radar files\\NEXRAD\\KCYS'
-outpath = 'H:\\radar output\\testImages\\optimization\\bleh\\'
+outpath = 'H:\\radar output\\testImages\\optimization\\bleh'
 
 ### File and Data Variables ###
 
 # String
-wildcard = 'KASPR' #Common wildcards are below
+wildcard = 'CHX' #Common wildcards are below
 #CHL: CSU-CHILL S-band
 #CHX: CSU-CHILL X-band
 #KASPR: SBU Ka-band
@@ -74,7 +74,7 @@ else:
         radar_type = 'NEXRAD'
     
 # String
-scan_strat = 'RHI' #Possible entries are below
+scan_strat = 'PPI' #Possible entries are below
 if radar_type == 'NEXRAD':
     scan_strat = 'PPI' #NEXRAD only scans in PPI mode
 #PPI: Plan view at a specific tilt angle
@@ -156,7 +156,7 @@ elif radar_type=='NEXRAD':
 ### Dealiasing Variables ###
 # Boolean
 dealias_bool = True
-save_cfradial_bool = True #Save the radar data with dealiased velocity in a CF/Radial file
+save_cfradial_bool = False #Save the radar data with dealiased velocity in a CF/Radial file
 
 # String
 if radar_type=='CHILL':
@@ -294,10 +294,10 @@ elif radar_type=='NEXRAD':
     mountain_clutter_bool = True #Needs to be set manually
 
 #   Contour overlay settings
-contour_bool = False
+contour_bool = True
 base_field = 'dealiased_velocity'
-contour_field = 'spectrum_width'
-contour_levels = [1]
+contour_field = 'reflectivity'
+contour_levels = [15]
 
 
 #   Parse through filelist
