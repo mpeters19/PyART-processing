@@ -1,6 +1,6 @@
 # PyART Processing
 
-Environment Analytics software written to aid in the processing, analysis, and visualization of radar software through the ARM PyART python package. Functions and documentation were originally created by Sara Berry in 2015. Software has been maintained by Daniel Hueholt since 2018.
+Environment Analytics software written to aid in the processing, analysis, and visualization of radar software through the [ARM PyART](https://github.com/ARM-DOE/pyart) python package. Functions and documentation were originally created by Sara Berry in 2015. Software has been maintained by Daniel Hueholt since 2018.
 
 ## Code description
 ### Environment Analytics PyART processing toolkit
@@ -21,4 +21,8 @@ Environment Analytics software written to aid in the processing, analysis, and v
 **start_script**: Sets variables and instantiates a child process in which run_fun can take place.
 
 ### Modified PyART files
-nexrad_level2: Updated to use np.frombuffer instead of np.fromstring, which is now deprecated.
+**nexrad_level2**: Updated to use np.frombuffer instead of np.fromstring, which is now deprecated.
+
+## Sources and Credit
+PyART citation:
+Helmus, J.J. & Collis, S.M., (2016). The Python ARM Radar Toolkit (Py-ART), a Library for Working with Weather Radar Data in the Python Programming Language. Journal of Open Research Software. 4(1), p.e25. DOI: [http://doi.org/10.5334/jors.119](http://doi.org/10.5334/jors.119)
