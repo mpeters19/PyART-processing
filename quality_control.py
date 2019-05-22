@@ -7,7 +7,7 @@ PyART, while others are entirely custom.
 
 @author: thecakeisalie
 
-Version date: 5/20/2019
+Version date: 5/22/2019
 Daniel Hueholt
 North Carolina State University
 Undergraduate Research Assistant at Environment Analytics
@@ -72,9 +72,11 @@ def dealias(radar, filename, outpath, name2dealias, new_name, nyquist_vel,
        
     # Save a new file containing the dealiased field
     if savefile == True:
-        split_file = string.split(filename, '.')    
-        filesavename = "%s%s.%s.%s.%s.unfold.%s" % (outpath, split_file[0], split_file[1], split_file[2], split_file[3], split_file[4])
+        split_file = filename.split('.')
+        filesavename = "%s%s_dealiased.cfradial" % (outpath, split_file[0])
         pyart.io.write_cfradial(filesavename, radar)
+            #print("Unable to save dealiased data as CF/Radial! Continuing to save images.")
+            
         
     return radar
     

@@ -23,9 +23,9 @@ import calculated_fields
 import time
 
 def parse_filelist(filelist, inpath, outpath, radar_type, fields, ranges, plot_bool, cmaps,
-                   colorbar_labels, x_lim, y_lim, scan_strat, dealias_bool, 
+                   colorbar_labels, x_lim, y_lim, scan_strat, dealias_bool, save_cfradial_bool,
                    name2dealias, new_name, nyquist_vel, Z_mask, Zdr_mask, PhiDP_mask, rhoHV_mask,
-                   NCP_mask, SNR_mask, Zdr_offset, snow_rate_bool, vdiv_bool, mountain_clutter_bool,
+                   NCP_mask, SNR_mask, Zdr_offset, snow_rate_bool, vdiv_bool, mountain_clutter_bool, 
                    contour_bool, base_field, contour_field, contour_levels):
     
     # Loop through each file in the list
@@ -111,7 +111,7 @@ def parse_filelist(filelist, inpath, outpath, radar_type, fields, ranges, plot_b
         
         # Dealias velocity data
         if dealias_bool == True:
-            radar = quality_control.dealias(radar, filename, outpath, name2dealias, new_name, nyquist_vel, 100, 100, savefile=False)
+            radar = quality_control.dealias(radar, filename, outpath, name2dealias, new_name, nyquist_vel, 100, 100, save_cfradial_bool)
             gc.collect()
         
         print("Dealiasing complete!") #Dealiasing can take a while, this helps keep the user aware of PyART's progress.

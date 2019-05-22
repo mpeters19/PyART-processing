@@ -43,15 +43,15 @@ from multiprocessing import Process
 
 ######### Define Variables #############
 ### Path Variables (strings)
-#inpath = 'H:\\store radar files\\KASPR\\20180104\\RHI'
-inpath = 'H:\\store radar files\\CSU-CHILL\\20180201\\X\\RHI\\'
+inpath = 'H:\\store radar files\\KASPR\\20180104\\RHI'
+#inpath = 'H:\\store radar files\\CSU-CHILL\\20180201\\X\\RHI\\'
 #inpath = 'H:\\store radar files\\NEXRAD\\KCYS'
-outpath = 'H:\\radar output\\testImages\\optimization\\contour\\'
+outpath = 'H:\\radar output\\testImages\\optimization\\bleh\\'
 
 ### File and Data Variables ###
 
 # String
-wildcard = 'CHX' #Common wildcards are below
+wildcard = 'KASPR' #Common wildcards are below
 #CHL: CSU-CHILL S-band
 #CHX: CSU-CHILL X-band
 #KASPR: SBU Ka-band
@@ -156,6 +156,7 @@ elif radar_type=='NEXRAD':
 ### Dealiasing Variables ###
 # Boolean
 dealias_bool = True
+save_cfradial_bool = True #Save the radar data with dealiased velocity in a CF/Radial file
 
 # String
 if radar_type=='CHILL':
@@ -299,9 +300,9 @@ contour_field = 'spectrum_width'
 contour_levels = [1]
 
 
-# Parse through filelist
+#   Parse through filelist
 # Processing is conducted within individual processes that are started and ended with each file.
-# Otherwise, Python's memory use will grow over time until the computer's memory is expended,
+# Otherwise, Python's memory use will grow until the computer's memory is expended,
 # crashing the system. This is not a memory leak in PyART! It's just a consequence of how Python's memory handling
 # deals with long-running processes.
 
@@ -313,7 +314,7 @@ if __name__== '__main__':
             # Instantiate a new process.
             p = Process(target=run_fun.parse_filelist,args=(filelist_ind, inpath, outpath, radar_type, fields, ranges, plot_bool, 
                                                                 cmaps, colorbar_labels, x_lim, y_lim, scan_strat, 
-                                                                dealias_bool, name2dealias, new_name, nyquist_vel, Z_mask, Zdr_mask, PhiDP_mask,
+                                                                dealias_bool, save_cfradial_bool, name2dealias, new_name, nyquist_vel, Z_mask, Zdr_mask, PhiDP_mask,
                                                                 rhoHV_mask, NCP_mask, SNR_mask, Zdr_offset, snow_rate_bool, vdiv_bool, mountain_clutter_bool,
                                                                 contour_bool, base_field, contour_field, contour_levels))
             p.start()
