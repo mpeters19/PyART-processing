@@ -142,18 +142,6 @@ def parse_filelist(filelist, inpath, outpath, radar_type, fields, ranges, plot_b
         else:
             figsize = [16,16] #Same settings used for PPI and sector scans # [16.346, 12]
         
-        #PARTIALLY IMPLEMENTED contour plotting code
-        #don't forget to work out levels and contours here too!!
-        plot_contour_overlay_bool = False
-        for bfc in range(len(fields)): #base field counter            
-            for cfc in range(len(fields)): #contour field counter
-                if plot_contour_overlay_bool:
-                    base_field = fields[bfc]
-                    contour_field = fields[cfc]
-                    if base_field == contour_field:
-                        continue
-                    Master_plotter.plot_contour_overlay(base_field, contour_field, radar, filename, outpath, scan_strat, ranges[bfc], cmaps[bfc], colorbar_labels[bfc], figsize, dealias_bool, x_lim, y_lim)
-            
         # Create and save plots
         if plot_bool == True:
             if contour_bool:
