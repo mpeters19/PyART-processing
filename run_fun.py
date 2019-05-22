@@ -15,7 +15,6 @@ Undergraduate Research Assistant at Environment Analytics
 import numpy as np
 import quality_control
 import Master_plotter
-import nexrad_plotter
 import pyart
 import gc
 import sys
@@ -26,7 +25,8 @@ import time
 def parse_filelist(filelist, inpath, outpath, radar_type, fields, ranges, plot_bool, cmaps,
                    colorbar_labels, x_lim, y_lim, scan_strat, dealias_bool, 
                    name2dealias, new_name, nyquist_vel, Z_mask, Zdr_mask, PhiDP_mask, rhoHV_mask,
-                   NCP_mask, SNR_mask, Zdr_offset, snow_rate_bool, vdiv_bool, mountain_clutter_bool):
+                   NCP_mask, SNR_mask, Zdr_offset, snow_rate_bool, vdiv_bool, mountain_clutter_bool,
+                   contour_bool, base_field, contour_field, contour_levels):
     
     # Loop through each file in the list
     length_filelist = np.size(filelist)
@@ -156,7 +156,13 @@ def parse_filelist(filelist, inpath, outpath, radar_type, fields, ranges, plot_b
             
         # Create and save plots
         if plot_bool == True:
-            Master_plotter.plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps, colorbar_labels, figsize, dealias_bool, x_lim, y_lim)
+            if contour_bool:
+                Master_plotter.plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps, colorbar_labels, figsize, dealias_bool, x_lim, y_lim, contour_bool, base_field, contour_field, contour_levels)
+            else:
+                Master_plotter.plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps, colorbar_labels, figsize, dealias_bool, x_lim, y_lim, contour_bool, base_field, contour_field, contour_levels)
+            gc.collect()
+        else: 
+            #Do nothing
             gc.collect()
         
         del radar

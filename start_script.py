@@ -44,14 +44,14 @@ from multiprocessing import Process
 ######### Define Variables #############
 ### Path Variables (strings)
 #inpath = 'H:\\store radar files\\KASPR\\20180104\\RHI'
-inpath = 'H:\\store radar files\\CSU-CHILL\\20180201\\X\\PPI\\'
+inpath = 'H:\\store radar files\\CSU-CHILL\\20180201\\X\\RHI\\'
 #inpath = 'H:\\store radar files\\NEXRAD\\KCYS'
-outpath = 'H:\\radar output\\testImages\\optimization\\final\\CHILL_PPI\\'
+outpath = 'H:\\radar output\\testImages\\optimization\\contour\\'
 
 ### File and Data Variables ###
 
 # String
-wildcard = 'CHX20' #Common wildcards are below
+wildcard = 'CHX' #Common wildcards are below
 #CHL: CSU-CHILL S-band
 #CHX: CSU-CHILL X-band
 #KASPR: SBU Ka-band
@@ -74,7 +74,7 @@ else:
         radar_type = 'NEXRAD'
     
 # String
-scan_strat = 'PPI' #Possible entries are below
+scan_strat = 'RHI' #Possible entries are below
 if radar_type == 'NEXRAD':
     scan_strat = 'PPI' #NEXRAD only scans in PPI mode
 #PPI: Plan view at a specific tilt angle
@@ -292,6 +292,13 @@ elif radar_type=='KASPR':
 elif radar_type=='NEXRAD':
     mountain_clutter_bool = True #Needs to be set manually
 
+#   Contour overlay settings
+contour_bool = False
+base_field = 'dealiased_velocity'
+contour_field = 'spectrum_width'
+contour_levels = [1]
+
+
 # Parse through filelist
 # Processing is conducted within individual processes that are started and ended with each file.
 # Otherwise, Python's memory use will grow over time until the computer's memory is expended,
@@ -305,9 +312,10 @@ if __name__== '__main__':
             filelist_ind=filelist[item]
             # Instantiate a new process.
             p = Process(target=run_fun.parse_filelist,args=(filelist_ind, inpath, outpath, radar_type, fields, ranges, plot_bool, 
-                                                                            cmaps, colorbar_labels, x_lim, y_lim, scan_strat, 
-                                                                            dealias_bool, name2dealias, new_name, nyquist_vel, Z_mask, Zdr_mask, PhiDP_mask,
-                                                                            rhoHV_mask, NCP_mask, SNR_mask, Zdr_offset, snow_rate_bool, vdiv_bool, mountain_clutter_bool))
+                                                                cmaps, colorbar_labels, x_lim, y_lim, scan_strat, 
+                                                                dealias_bool, name2dealias, new_name, nyquist_vel, Z_mask, Zdr_mask, PhiDP_mask,
+                                                                rhoHV_mask, NCP_mask, SNR_mask, Zdr_offset, snow_rate_bool, vdiv_bool, mountain_clutter_bool,
+                                                                contour_bool, base_field, contour_field, contour_levels))
             p.start()
             #print(p.is_alive())
             p.join()
