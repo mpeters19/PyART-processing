@@ -1,6 +1,6 @@
 # PyART Processing
 
-Environment Analytics software written to aid in the processing, analysis, and visualization of radar software through the [ARM PyART](https://github.com/ARM-DOE/pyart) python package. Functions and documentation were originally created by Sara Berry in 2015. Software has been maintained by Daniel Hueholt since 2018.
+Environment Analytics code written to aid in the processing, analysis, and visualization of radar data through the [ARM PyART](https://github.com/ARM-DOE/pyart) python package. Functions and documentation were originally created by Sara Berry in 2015. Software has been maintained by Daniel Hueholt since 2018.
 
 ## Code description
 ### Environment Analytics PyART processing toolkit
