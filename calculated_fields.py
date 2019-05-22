@@ -96,7 +96,10 @@ def kdp_second_derivative(radar, radar_fieldnames):
     return radar_fieldnames
 
 def velocity_vertical_divergence(radar, radar_fieldnames):
-    vdiv = radar.fields['dealiased_velocity']['data'].data
+    try:
+        vdiv = radar.fields['dealiased_velocity']['data'].data
+    except KeyError:
+        vdiv = radar.fields['PyART_dealiased_velocity']['data'].data
     
     # Take the derivative with respect to height
     vdiv = np.diff(vdiv,n=1,axis=0) #Python matrices start at 0

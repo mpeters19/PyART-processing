@@ -2,9 +2,12 @@
 """
 Created on Thu Aug 06 12:27:04 2015
 
+Contains various functions for quality control of radar data. Many rely on functions included in
+PyART, while others are entirely custom.
+
 @author: thecakeisalie
 
-Version date: 12/7/2018
+Version date: 5/20/2019
 Daniel Hueholt
 North Carolina State University
 Undergraduate Research Assistant at Environment Analytics
@@ -16,7 +19,7 @@ import time
 import numpy as np
 
 def dealias(radar, filename, outpath, name2dealias, new_name, nyquist_vel, 
-            skip_along_ray, skip_between_rays, despeckle, savefile=True):
+            skip_along_ray, skip_between_rays, savefile=True):
     """
     DESCRIPTION: Dealiases a specified field using the PyART
         dealiased_region_based function and can save off a separate cfradial 
@@ -43,7 +46,7 @@ def dealias(radar, filename, outpath, name2dealias, new_name, nyquist_vel,
         gates between rays. Set to 0 to disable 
         unfolding across filtered gates.
     
-    OPTIONAL INPUS:
+    OPTIONAL INPUTS:
     savefile = Default set to True. A boolean value. If True, will save a new 
         cfradial file containing the dealiased field. 
     
@@ -63,7 +66,7 @@ def dealias(radar, filename, outpath, name2dealias, new_name, nyquist_vel,
         radar = radar.extract_sweeps(good)
     
     # Dealias and add new dealiased field to radar object    
-    corr_vel = pyart.correct.dealias_region_based(radar,vel_field=name2dealias,nyquist_vel=nyquist_vel,skip_along_ray=skip_along_ray,skip_between_rays=skip_between_rays,gatefilter=despeckle,keep_original=False)
+    corr_vel = pyart.correct.dealias_region_based(radar,vel_field=name2dealias,nyquist_vel=nyquist_vel,skip_along_ray=skip_along_ray,skip_between_rays=skip_between_rays,gatefilter=False,keep_original=False)
     radar.add_field(new_name, corr_vel, True)
     print("Dealiasing complete in current file!")
        
@@ -101,19 +104,7 @@ def set2range(radar, field, val_max, val_min):
     radar.fields[field]['data'].data[over] = val_max
     radar.fields[field]['data'].data[under] = val_min
     
-#    print "Panda Horse!"
-    
-    return radar
-
-def noiseMaskGeneral(radar,radar_fieldnames,Z_mask,rhoHV_mask):
-    noise_ind = radar.fields['correlation_coefficient']['data'].data[(radar.fields['correlation_coefficient']['data'].data < rhoHV_mask['range'][0]) & (radar.fields['correlation_coefficient']['data'].data < Z_mask['range'][0])]
-    print(noise_ind)
-    time.sleep(3)
-    
-    for field in radar_fieldnames:
-        radar.fields[field]['data'].data[noise_ind] = None
-
-    return radar    
+    return radar 
 
 def removeNoiseZ(radar, radar_fieldnames, Z_min, Z_max):
     """
@@ -123,7 +114,7 @@ def removeNoiseZ(radar, radar_fieldnames, Z_min, Z_max):
     INPUTS:
     radar = A python object structure that contains radar information. Created
         by PyART in one of the pyart.io.read functions.
-    radarFieldnames = names of fields in the radar object
+    radar_fieldnames = Names of fields in the radar object
     val_max = Numeric value. Sets the maximum bound.
     val_min = Numeric value. Sets the minimum bound.
     
@@ -133,7 +124,6 @@ def removeNoiseZ(radar, radar_fieldnames, Z_min, Z_max):
         
     """
     # Check to see if values are in range
-    
     try:
         over = (radar.fields['reflectivity']['data'].data > Z_max)
         under = (radar.fields['reflectivity']['data'].data < Z_min)
@@ -142,8 +132,8 @@ def removeNoiseZ(radar, radar_fieldnames, Z_min, Z_max):
         under = (radar.fields['DBZV']['data'].data < Z_min)
     
     # Troubleshooting
-    #print radar_fieldnames
-    #print radar.fields #If you suspect the data is blank, uncomment this to print a sample to the console
+    #print(radar_fieldnames)
+    #print(radar.fields) #If you suspect the data is blank, uncomment this to print a sample to the console
     
     for field in radar_fieldnames:
         try:
@@ -153,18 +143,17 @@ def removeNoiseZ(radar, radar_fieldnames, Z_min, Z_max):
             radar.fields[field]['data'][over] = None
             radar.fields[field]['data'][under] = None
     
-#    print "Panda Horse!"
-    
     return radar
 
 def removeMountainClutter(radar, radar_fieldnames):
     """
-    DESCRIPTION: Attempts to kill the friggin mountains!!
+    DESCRIPTION: Attempts to kill the friggin mountains!! Removes return that has high reflectivity
+    but near-zero velocity. Works surprisingly well in winter storms.
     
     INPUTS:
     radar = A python object structure that contains radar information. Created
         by PyART in one of the pyart.io.read functions.
-    radarFieldnames = names of fields in the radar object
+    radar_fieldnames = Names of fields in the radar object
     
     OUTPUTS:
     radar = The original radar object but with the edited values for the 
@@ -172,7 +161,6 @@ def removeMountainClutter(radar, radar_fieldnames):
         
     """
     # Check to see if values are in range
-    
     Z_max = 25
     
     slow = (radar.fields['dealiased_velocity']['data'].data < 0.2)
@@ -193,19 +181,16 @@ def removeMountainClutter(radar, radar_fieldnames):
         except NotImplementedError:
             radar.fields[field]['data'][mountainIndices] = None #For calculated fields like Rasmussen snow rate
     
-#    print "Panda Horse!"
-    
     return radar
 
 def removeNoiseZdr(radar, radar_fieldnames, Zdr_min, Zdr_max):
     """
-    DESCRIPTION: Removes data across all variables corresponding to noisy reflectivity
-        values.
+    DESCRIPTION: Removes data across all variables corresponding to noisy Zdr values.
     
     INPUTS:
     radar = A python object structure that contains radar information. Created
         by PyART in one of the pyart.io.read functions.
-    radarFieldnames = names of fields in the radar object
+    radar_fieldnames = names of fields in the radar object
     val_max = Numeric value. Sets the maximum bound.
     val_min = Numeric value. Sets the minimum bound.
     
@@ -215,7 +200,6 @@ def removeNoiseZdr(radar, radar_fieldnames, Zdr_min, Zdr_max):
         
     """
     # Check to see if values are in range
-    
     over = (radar.fields['differential_reflectivity']['data'].data > Zdr_max)
     under = (radar.fields['differential_reflectivity']['data'].data < Zdr_min)
     
@@ -227,8 +211,6 @@ def removeNoiseZdr(radar, radar_fieldnames, Zdr_min, Zdr_max):
         radar.fields[field]['data'].data[over] = None
         radar.fields[field]['data'].data[under] = None
     
-#    print "Panda Horse!"
-    
     return radar
 
 def removeNoiseRhoHV(radar, radar_fieldnames, rhohv_min, rhohv_max):
@@ -239,7 +221,7 @@ def removeNoiseRhoHV(radar, radar_fieldnames, rhohv_min, rhohv_max):
     INPUTS:
     radar = A python object structure that contains radar information. Created
         by PyART in one of the pyart.io.read functions.
-    radarFieldnames = names of fields in the radar object
+    radar_fieldnames = Names of fields in the radar object
     val_max = Numeric value. Sets the maximum bound.
     val_min = Numeric value. Sets the minimum bound.
     
@@ -249,7 +231,6 @@ def removeNoiseRhoHV(radar, radar_fieldnames, rhohv_min, rhohv_max):
         
     """
     # Check to see if values are in range
-    
     try:
         over = (radar.fields['cross_correlation_ratio']['data'].data > rhohv_max)
         under = (radar.fields['cross_correlation_ratio']['data'].data < rhohv_min)
@@ -260,7 +241,6 @@ def removeNoiseRhoHV(radar, radar_fieldnames, rhohv_min, rhohv_max):
         except KeyError:
             over = (radar.fields['correlation_coefficient']['data'].data > rhohv_max)
             under = (radar.fields['correlation_coefficient']['data'].data < rhohv_min)
-    
     
     # Troubleshooting
     #print radar_fieldnames
@@ -274,19 +254,16 @@ def removeNoiseRhoHV(radar, radar_fieldnames, rhohv_min, rhohv_max):
             radar.fields[field]['data'][over] = None
             radar.fields[field]['data'][under] = None
     
-#    print "Panda Horse!"
-    
     return radar
 
 def removeNoisePhiDP(radar, radar_fieldnames, PhiDP_min, PhiDP_max):
     """
-    DESCRIPTION: Removes data across all variables based on PhiDP
-        values.
+    DESCRIPTION: Removes data across all variables based on PhiDP values.
     
     INPUTS:
     radar = A python object structure that contains radar information. Created
         by PyART in one of the pyart.io.read functions.
-    radarFieldnames = names of fields in the radar object
+    radar_fieldnames = Names of fields in the radar object
     val_max = Numeric value. Sets the maximum bound.
     val_min = Numeric value. Sets the minimum bound.
     
@@ -296,14 +273,12 @@ def removeNoisePhiDP(radar, radar_fieldnames, PhiDP_min, PhiDP_max):
         
     """
     # Check to see if values are in range
-    
     try:
         over = (radar.fields['PHIDP']['data'].data > PhiDP_max)
         under = (radar.fields['PHIDP']['data'].data < PhiDP_min)
     except KeyError:
         over = (radar.fields['specific_differential_phase']['data'].data > PhiDP_max)
         under = (radar.fields['specific_differential_phase']['data'].data < PhiDP_min)
-    
     
     # Troubleshooting
     #print radar_fieldnames
@@ -317,8 +292,6 @@ def removeNoisePhiDP(radar, radar_fieldnames, PhiDP_min, PhiDP_max):
             radar.fields[field]['data'][over] = None
             radar.fields[field]['data'][under] = None
     
-#    print "Panda Horse!"
-    
     return radar
 
 def removeNoiseNCP(radar, radar_fieldnames, ncp_min, ncp_max):
@@ -329,7 +302,7 @@ def removeNoiseNCP(radar, radar_fieldnames, ncp_min, ncp_max):
     INPUTS:
     radar = A python object structure that contains radar information. Created
         by PyART in one of the pyart.io.read functions.
-    radarFieldnames = names of fields in the radar object
+    radar_fieldnames = names of fields in the radar object
     val_max = Numeric value. Sets the maximum bound.
     val_min = Numeric value. Sets the minimum bound.
     
@@ -339,7 +312,6 @@ def removeNoiseNCP(radar, radar_fieldnames, ncp_min, ncp_max):
         
     """
     # Check to see if values are in range
-    
     over = (radar.fields['normalized_coherent_power']['data'].data > ncp_max)
     under = (radar.fields['normalized_coherent_power']['data'].data < ncp_min)
     
@@ -354,8 +326,6 @@ def removeNoiseNCP(radar, radar_fieldnames, ncp_min, ncp_max):
         except NotImplementedError:
             radar.fields[field]['data'][over] = None
             radar.fields[field]['data'][under] = None
-    
-#    print "Panda Horse!"
     
     return radar
 
@@ -377,7 +347,6 @@ def removeNoiseSNR(radar, radar_fieldnames, snr_min, snr_max):
         
     """
     # Check to see if values are in range
-    
     over = (radar.fields['snr']['data'].data > snr_max)
     under = (radar.fields['snr']['data'].data < snr_min)
     
@@ -388,8 +357,6 @@ def removeNoiseSNR(radar, radar_fieldnames, snr_min, snr_max):
     for field in radar_fieldnames:
         radar.fields[field]['data'].data[over] = None
         radar.fields[field]['data'].data[under] = None
-    
-#    print "Panda Horse!"
     
     return radar
     
