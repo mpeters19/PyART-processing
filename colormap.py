@@ -4,9 +4,7 @@ Created on Mon Jun 23 15:06:14 2014
 
 @author: thecakeisalie
 
-make_colormap by StackOverflow user unutbu
-
-Updated 3/22/2019
+Updated 5/23/2019
 
 """
 
@@ -132,24 +130,7 @@ def PID_Integer():
                   
                   
     cmap_PID = colors.ListedColormap(colors_hex, name = 'PID')    
-    
-    
-#    colors_RGB = []
-#    for i in range(0, nump.size(colors_hex)):
-#        color_RGB = hex_to_rgb(colors_hex[i])
-#        colors_RGB.append((color_RGB/255)        
-#        
-#    cmap_PID = colors.ListedColormap(colors_RGB, name='PID')
-    
-    
-#    x = nump.linspace(0,1,21)
-#    X,Y = nump.meshgrid(x,x)
-#    Z = .5*(X+Y)
-#    plt.pcolor(X,Y,Z, cmap=cmap_PID, edgecolors='k')
-#    plt.axis('equal')
-#    plt.colorbar()
-#    plt.title('Plot of x+y using colormap')
- 
+
     return cmap_PID
 
 def PID_Integer_CHILL():
@@ -166,63 +147,15 @@ def PID_Integer_CHILL():
     
 
 def contourColors():
-    
+    """
+    Colormap made of 6 distinct colors. Designed to be high-contrast against as many radar datatypes as possible.
+    Intended to make automatic coloration of RHI contour overlays possible
+    """
     colors_hex = ['#AE3135','#EEA2AD','#660066','#66B2B2','#FFE4C4','#E0E8D5']
                   
     cmap_contourColors = colors.ListedColormap(colors_hex, name = 'contourColors')
 
-    
-#    colors_RGB = []
-#    for i in range(0, nump.size(colors_hex)):
-#        color_RGB = hex_to_rgb(colors_hex[i])
-#        colors_RGB.append((color_RGB/255)        
-#        
-#    cmap_PID = colors.ListedColormap(colors_RGB, name='PID')
-    
-    
-#    x = nump.linspace(0,1,21)
-#    X,Y = nump.meshgrid(x,x)
-#    Z = .5*(X+Y)
-#    plt.pcolor(X,Y,Z, cmap=cmap_PID, edgecolors='k')
-#    plt.axis('equal')
-#    plt.colorbar()
-#    plt.title('Plot of x+y using colormap')
- 
     return cmap_contourColors
-    
-def Vel1():
-    
-    cdict = {'red':  ((0.0, 0.0, 0.0),
-                   (0.25,0.0, 0.0),
-                   (0.5, 1.0, 1.0),
-                   (0.75,1.0, 1.0),
-                   (1.0, 0.4, 1.0)),
-    
-         'green': ((0.0, 0.0, 0.0),
-                   (0.25,0., 0.),
-                   (0.5, 0.1, 0.1),
-                   (0.75,0., 0.),
-                   (1.0, 0.0, 0.0)),
-    
-         'blue':  ((0.0, 0.0, 0.4),
-                   (0.25,1.0, 1.0),
-                   (0.5, 1.0, 0.8),
-                   (0.75,0.0, 0.0),
-                   (1.0, 0.0, 0.0))
-        }
-    
-    vel1 = matplotlib.colors.LinearSegmentedColormap('Vel1', cdict) 
-    plt.register_cmap(cmap = vel1)
-    
-    ## Testing
-#    x = nump.linspace(0,1,21)
-#    X,Y = nump.meshgrid(x,x)
-#    Z = .5*(X+Y)
-#    plt.pcolor(X,Y,Z, cmap='Vel1', edgecolors='k')
-#    plt.axis('equal')
-#    plt.colorbar()
-#    plt.title('Plot of x+y using colormap')
-    
     
     
 def rgb_to_hex(rgb):
@@ -235,21 +168,11 @@ def convert_to_grey(x, vmin, vmax):
 
 
 def cuckoo():
+    """
+    Red/green colorblind-safe diverging (brown-red to blue-green) colormap. Conserves luminance.
+    """
     cuckooBrownHue = 34
     cuckooGrayBlueHue= 174
     cuckooPalette = seaborn.diverging_palette(cuckooBrownHue,cuckooGrayBlueHue,center='light',as_cmap=True)
     return cuckooPalette
-
-
-#def make_colormap(seq):
-#    seq = [(None,) * 3, 0.0] + list(seq) + [1.0,(None,)*3]
-#    cdict={'red':[],'green':[],'blue':[]}
-#    for i,item in enumerate(seq):
-#        if isinstance(item,float):
-#            r1,g1,b1=seq[i-1]
-#            r2,g2,b2=seq[i+1]
-#            cdict['red'].append([item,r1,r2])
-#            cdict['green'].append([item,g1,g2])
-#            cdict['blue'].append([item,b1,b2])
-#    return colors.LinearSegmentedColormap('CustomMap',cdict)
     

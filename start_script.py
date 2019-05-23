@@ -4,29 +4,51 @@ STARTING POINT FOR PYART PROCESSING
 
 DESCRIPTION: Use this script to easily process and plot radar data in PyART.
 
-WORKFLOW:
-    inpath
-    outpath
-    wildcard
-    specials
-    scan_strat
-    fields
-    ranges
-    x_lim
-    y_lim
-    colorbar_labels
-    dealias_bool
-        name2dealias
-        new_name
-        nyquist_vel
-    cmaps
-
+MANUAL VARIABLES (These must be changed by hand):
+    inpath: File path containing the radar data to be processed.
+    outpath: File path where images and/or processed data should be saved
+    wildcard: String found in all of the data files. Used to automatically determine the radar type.
+    scan_strat: String describing the scan strategy ('PPI', 'RHI', or 'Sector').
+    
+    snow_rate_bool: True/False on whether to calculate the Rasmussen snow rate (rescaled reflectivity).
+    vdiv_bool: True/False on whether to calculate the vertical divergence of horizontal velocity (RHI only)
+    
+    contour_bool: True/False whether to overlay contours of a secondary field over a plot of a base field.
+    base_field: Field to be plotted normally.
+    contour_field: Field to be contoured over the base field.
+    contour_levels: Array of values at which to draw contours, e.g. [10,20]
+    
+    azi_overlay: Dictionary containing settings for drawing RHI azimuths on a PPI plot.
+    
+    dealias_bool: True/False on whether to dealias velocity data or leave folded.
+    save_cfradial_bool: True/False on whether to save a CF/Radial data files containing dealiased velocity data.
+    
+SEMIAUTOMATIC VARIABLES (Take care of themselves for KASPR, CHILL, and NEXRAD, but can be controlled manually):
+    radar_type: Used throughout the toolkit to discriminate between the different radars.
+    fields: Data types observed.
+    ranges: Ranges corresponding to the fields.
+    plot_bool: True/False on whether or not to make plots. Leave at True unless only using PyART to save off data.
+    x_lim: x-limit for image output.
+    y_lim: y-limit for image output.
+    colorbar_labels: Labels for the colorbars corresponding to the fields and ranges.
+    name2dealias: Name of the folded velocity field.
+    new_name: String that PyART will name the dealiased velocity field.
+    nyquist_vel: Nyquist velocity used by dealiaser. MUST BE SET MANUALLY FOR NEXRAD.
+    cmaps: Colormaps to use when plotting the fields.
+    rhoHV_mask: Dictionary containing settings for rhoHV filter. Enabled and set to retain data between 0.45 and 1.2 by default.
+    NCP_mask: Dictionary containing settings for NCP filter. Disabled by default.
+    SNR_mask: Dictionary containing settings for SNR filter. Disabled by default.
+    Zdr_offset: Dictionary containing settings for accounting for Zdr offset on some radars. Disabled for CHILL and NEXRAD. Enabled and accounts for 1.2 dB offset on KASPR.
+    mountain_clutter_bool: True/False to run/not run the mountain removal code. MUST BE SET MANUALLY FOR NEXRAD.
+    
+    
+    
 
 Created on Thu Aug 06 14:01:55 2015
 
 @author: thecakeisalie
 
-Version date: 5/22/2019
+Version date: 5/23/2019
 Daniel Hueholt
 North Carolina State University
 Undergraduate Research Assistant at Environment Analytics
@@ -55,6 +77,7 @@ wildcard = 'KASPR' #Common wildcards are below
 # KASPR, CHILL, and NEXRAD are the only fully-implemented radars for now
 #KXA: Dallas HF-S
 #KXAS: NBC5 StormRanger
+
 scan_strat = 'PPI' #Possible entries are below
 #PPI: Plan view at a specific tilt angle
 #RHI: Cross section along a specific azimuth
@@ -76,11 +99,8 @@ else:
         radar_type = 'NEXRAD'
     
 # List of strings (field names)
-#CSU-CHILL: ['reflectivity','corrected_velocity','corrected_differential_reflectivity','spectrum_width','cross_correlation_ratio','normalized_coherent_power','specific_differential_phase']
 #HF-S: ['DBZH','DBZV','ZDR','RHOHV','PHIDP','SNRHC','SNRVC','dealiasVELH']
 #KASPR: ['correlation_coefficient','differential_phase','differential_reflectivity','linear_depolarization_ratio','linear_depolarization_ratio_hc_hh','mean_doppler_velocity','mean_doppler_velocity_folded','reflectivity','reflectivity_xpol_htx','reflectivity_xpol_vtx','snr','snr_xpol_htx','snr_xpol_vtx','spectrum_width']
-#KASPR (commonly-used): ['correlation_coefficient','differential_reflectivity','PyART_dealiased_velocity','reflectivity','spectrum_width','linear_depolarization_ratio','snr']
-#NEXRAD: ['reflectivity','dealiased_velocity','spectrum_width','cross_correlation_ratio','differential_reflectivity']
 #StormRanger:
 #
 #fields: strings, refer to the data types observed
@@ -106,7 +126,7 @@ plot_bool = True #Determines whether to make plots or not
 
 # Set x and y limits for radar plot
 if scan_strat != 'RHI':
-    x_lim = [-60,60] #CSU-CHILL PPI (or sector)
+    x_lim = [-60,60]
     y_lim = [-60,60]
     if radar_type == 'NEXRAD':
         x_lim = [-175,175]
@@ -118,16 +138,10 @@ if scan_strat == 'RHI':
 # Other useful x-limits
 #x_lim = [-375,375] #HF-S PPI
 #x_lim =  #StormRanger
-#x_lim = [-30,30] #KASPR PPI
-#x_lim = [0,30] #KASPR RHI
-#x_lim = [0,50] #CSU-CHILL Bragg waves RHI
 #x_lim = [0,75] #CSU-CHILL X-band max RHI range
 # Other useful y-limits
 #y_lim = [-375,375] #HF-S PPI
 #y_lim = #StormRanger
-#y_lim = [-30,30] #KASPR PPI
-#y_lim = [0,8] #KASPR RHI
-#y_lim = [0,5] #CSU-CHILL Bragg waves RHI
 #y_lim = [0,16] #CSU-CHILL RHI (summer)
 
 # List of strings (colorbar labels)
@@ -165,7 +179,6 @@ elif radar_type=='NEXRAD':
 #nyquist_vel = 8.5048 #HF-S
 #name2dealias = #StormRanger
 #new_name = #StormRanger
-#nyquist_vel = 26.389
 
 #######################################
 
@@ -177,7 +190,7 @@ print(inpath)
 print(outpath)
 
 # Load color maps
-# L_range is the luminance range; if the colors come out too dark then raise the minimum luminance value
+# L_range is the luminance range. If the colors come out too dark then raise the minimum luminance value.
 max_luminance = 100
 min_luminance = 0
 LCH = colormap.LCH_Spiral()[0]
@@ -190,10 +203,8 @@ cuckooPalette = colormap.cuckoo()
 # Set colormaps
 #CAUTION: DO NOT USE 'seismic' FOR VELOCITY DATA. 'seismic' is asymmetric around its zero value, which skews the apparent magnitude
 #of negative values relative to positive values. 'RdBu_r' is preferred.
-#cmaps = [LCH,'RdBu_r',LCH_zdr,LCH_wid,'bone_r','copper','magma',cuckooPalette] #CSU-CHILL
 #cmaps = [LCH,LCH,LCH_zdr,'bone_r','cividis','copper','copper','RdBu_r'] #HF-S
 #cmaps = #StormRanger
-#cmaps = ['bone_r','cividis',LCH_zdr,'RdBu_r',LCH,LCH_wid] #KASPR few
 if radar_type=='CHILL':
     cmaps = [LCH,'RdBu_r',LCH_zdr,LCH_wid,'bone_r','copper','magma',cuckooPalette] #CSU-CHILL
 elif radar_type=='KASPR':
@@ -239,7 +250,7 @@ NCP_mask = {
         "range": (0.15, 1.2)
         }
 SNR_mask = {
-        "bool": True,
+        "bool": False,
         "range": (5, 100)
         }
 
@@ -279,12 +290,11 @@ contour_levels = [15] #Values for contours
 #   Settings controlling RHI azimuth overlay on PPI plot
 if scan_strat == 'PPI':
     azi_overlay = {
-            "bool": True,
+            "bool": False,
             "azi_lines": [134,224],
             "color": "#105456",
             "linewidth": 4.2
             }
-#azilines, color, linewidth
 
 #   Parse through filelist
 # Processing is conducted within individual processes that are started and ended with each file.

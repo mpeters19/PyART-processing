@@ -2,9 +2,15 @@
 """
 Created on Fri Dec  7 12:35:27 2018
 
+DESCRIPTION: Functions to derive fields from existing observations and add them to the radar object.
+Contains:
+    rasmussen_snow_rate
+    kdp_derivative
+    velocity_vertical_divergence
+
 @author: danielholt
 
-Version date: 1/29/2019
+Version date: 5/23/2019
 Daniel Hueholt
 North Carolina State University
 Undergraduate Research Assistant at Environment Analytics
@@ -31,8 +37,7 @@ def rasmussen_snow_rate(radar, radar_fieldnames):
     radar_fieldnames = names of fields in the radar object
     
     OUTPUTS:
-    radar = The original radar object but with the edited values for the 
-        specified field.
+    radar = The original radar object but with snow rate added.
         
     """
     
@@ -59,7 +64,7 @@ def rasmussen_snow_rate(radar, radar_fieldnames):
     return radar
     return radar_fieldnames
 
-def kdp_second_derivative(radar, radar_fieldnames):
+def kdp_derivative(radar, radar_fieldnames):
     """
     DESCRIPTION: Calculates the derivative of the two-way differential phase (Kdp)
     then adds said field to the radar object. Is this useful? Probably not!! But I thought
@@ -67,7 +72,7 @@ def kdp_second_derivative(radar, radar_fieldnames):
     
     NOTE THAT THE NEW FIELD IS NOT FORMATTED EXACTLY THE SAME AS A NORMAL PYART DATA FIELD
     PyART data fields are by default masked arrays with a data, mask, and fill_value component. The new 
-    snow rate field will simply be an array.
+    kdp derivative field will simply be an array.
     
     
     INPUTS:
@@ -96,6 +101,24 @@ def kdp_second_derivative(radar, radar_fieldnames):
     return radar_fieldnames
 
 def velocity_vertical_divergence(radar, radar_fieldnames):
+    """
+    DESCRIPTION: Calculates the vertical divergence of horizontal velocity; basically the gate-by-gate vertical shear.
+    This field is referred to as "vdiv" for short.
+    
+    NOTE THAT THE NEW VDIV FIELD IS NOT FORMATTED EXACTLY THE SAME AS A NORMAL PYART DATA FIELD
+    PyART data fields are by default masked arrays with a data, mask, and fill_value component. The new 
+    vdiv field will simply be an array.
+    
+    
+    INPUTS:
+    radar = A python object structure that contains radar information. Created
+        by PyART in one of the pyart.io.read functions.
+    radar_fieldnames = names of fields in the radar object
+    
+    OUTPUTS:
+    radar = The original radar object, with vdiv added.
+        
+    """
     try:
         vdiv = radar.fields['dealiased_velocity']['data'].data
     except KeyError:

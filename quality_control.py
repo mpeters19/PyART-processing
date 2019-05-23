@@ -7,7 +7,7 @@ PyART, while others are entirely custom.
 
 @author: thecakeisalie
 
-Version date: 5/22/2019
+Version date: 5/23/2019
 Daniel Hueholt
 North Carolina State University
 Undergraduate Research Assistant at Environment Analytics

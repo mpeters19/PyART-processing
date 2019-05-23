@@ -4,8 +4,8 @@ Created on Thu Aug 06 12:42:46 2015
 
 @author: thecakeisalie
 
-Currently maintained by Daniel Hueholt
-Last updated: 1/15/2019
+Maintained by Daniel Hueholt
+Last updated: 5/23/2019
 """
 import glob
 import os
@@ -107,7 +107,7 @@ def get_savename(filename, sweepnum, outpath, scan_strat, field, azi, dealias_bo
 def read_object(filename):
     """
     DESCRIPTION: Reads in a string from a file and interprets it as a pickle data
-    strem.  The data stream is then reconstructed back into a Python object.
+    stream.  The data stream is then reconstructed back into a Python object.
     
     INPUTS:
     filename = The full path to the file.
@@ -126,16 +126,31 @@ def save_object(obj, filename):
     obj = The Python object you wish to save.
     filename = The full path + name of the file.
     
-    OUTPUS: 
+    OUTPUTS: 
     The saved file containing the object.
     """
     with open(filename, 'wb') as output:
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
         
 def azi_calculator(azi_lines,max_length):
-    count = 0
+    """
+    DESCRIPTION: Uses trigonometry to calculates coordinates to overlay RHI azimuths
+        on a PPI plot.
+        
+    INPUTS:
+        azi_lines: array containing azimuths to be plotted (in degrees, e.g. [134,224])
+        max_length: hypoteneuse. For a radar PPI image, this will be the x_lim/y_lim
+        
+    OUTPUTS:
+        x_c: array containing x-coordinates
+        y_c: array containing y-coordinates
+    
+    See Master_plotter for an example of how this is used in practice.
+    
+    """
     x_c = np.empty(np.size(azi_lines))
     y_c = np.empty(np.size(azi_lines))
+    
     for count in range(0,np.size(azi_lines)):
         azi = azi_lines[count]
         if azi > 0 and azi < 90:

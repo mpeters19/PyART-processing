@@ -6,7 +6,7 @@ Processes radar data using PyART and custom tools.
 
 @author: thecakeisalie
 
-Version date: 5/22/2019
+Version date: 5/23/2019
 Daniel Hueholt
 North Carolina State University
 Undergraduate Research Assistant at Environment Analytics
@@ -66,7 +66,6 @@ def parse_filelist(filelist, inpath, outpath, radar_type, fields, ranges, plot_b
             colorbar_labels.append('Snow rate (mm/hr)')
       
         # Data quality
-        #   Remove values outside of a given Z, PhiDP, RhoHV, NCP range        
         if dealias_bool == False:
             if Z_mask['bool'] == True:
                 radar = quality_control.removeNoiseZ(radar,fields,Z_mask['range'][0],Z_mask['range'][1])
@@ -80,7 +79,6 @@ def parse_filelist(filelist, inpath, outpath, radar_type, fields, ranges, plot_b
                 radar = quality_control.removeNoiseSNR(radar,fields,SNR_mask['range'][0],SNR_mask['range'][1])
         else:
             # Need to apply masks before dealiasing, but a KeyError occurs due to the mismatch between new_name and name2dealias
-            #print fields
             # Replace new_name with name2dealias
             v_ind = fields.index(new_name)
             fields.remove(new_name)
@@ -121,8 +119,7 @@ def parse_filelist(filelist, inpath, outpath, radar_type, fields, ranges, plot_b
             vdiv_bool = False
         if vdiv_bool:
             radar = calculated_fields.velocity_vertical_divergence(radar,fields)
-            #ranges.append((0,3)) # X
-            ranges.append((0,3)) # S
+            ranges.append((0,3))
             cmaps.append('inferno')
             colorbar_labels.append('|vDiv| ms^(-1)/gate')
         
@@ -130,27 +127,21 @@ def parse_filelist(filelist, inpath, outpath, radar_type, fields, ranges, plot_b
         if mountain_clutter_bool:
             radar = quality_control.removeMountainClutter(radar,fields)
         
-        #print(fields) #Display all the fields
-        
         #pytda.calc_turb_sweep(radar) #someday!!
         
         # Set figure sizes
         if scan_strat == 'RHI':
             #for 0 to 6 km use [40,6]
             #for 0 to 9 km use [42,8]
-            figsize = [42,8]#[40,6] #some others that are useful at times [40,12]#[14.66, 3.652]#[40, 12]#[49.82, 4]#[43.6, 3.5]#30,4 #25,4
+            figsize = [42,8]#[40,6] #some others that have been useful [40,12]#[14.66, 3.652]#[40, 12]#[49.82, 4]#[43.6, 3.5]#30,4 #25,4
         else:
             figsize = [16,16] #Same settings used for PPI and sector scans # [16.346, 12]
         
         # Create and save plots
         if plot_bool == True:
-            if contour_bool:
                 Master_plotter.plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps, colorbar_labels, figsize, dealias_bool, x_lim, y_lim, contour_bool, base_field, contour_field, contour_levels, azi_overlay)
-            else:
-                Master_plotter.plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps, colorbar_labels, figsize, dealias_bool, x_lim, y_lim, contour_bool, base_field, contour_field, contour_levels, azi_overlay)
-            gc.collect()
         else: 
-            #Do nothing
+            #Do nothing, other than collect the garbage
             gc.collect()
         
         del radar

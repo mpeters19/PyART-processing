@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 """
+DESCRIPTION: Contains functions used to plot radar data that has been processed by the 
+rest of the PyART toolkit.
+
 Created on Fri May 30 15:06:17 2014
 
 @author: thecakeisalie
 
-Version date: 5/22/2019
+Version date: 5/23/2019
 Daniel Hueholt
 North Carolina State University
 Undergraduate Research Assistant at Environment Analytics
@@ -111,7 +114,6 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
     
     WEIRD QUIRKS:
     metadisp: Logical variable to control whether metatext (title, azimuth, etc.) is included in plots.
-    x/y location of title text is set manually; do a find on "plt.figtext(" to find the relevant lines. (Locations are different for RHI and PPI, make sure you're changing the locations for the scan type you're trying to make!)
     
     """    
     for sweepnum in range(0, np.size(radar.sweep_number['data'])):
@@ -137,7 +139,7 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
             vmin, vmax = ranges[i]                       
             
             # Check to see if values are in range
-            #radar = quality_control.set2range(radar,field,vmax,vmin) #Not used in current CHILL processing
+            #radar = quality_control.set2range(radar,field,vmax,vmin) #Not used in current processing workflow
             
             # Instantiate PyART radar display object
             display = pyart.graph.RadarDisplay(radar)            
@@ -200,22 +202,21 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                     total_text = time_text+long_spacer+angle_text+long_spacer+scan_strat
                 
                 #caption_dict controls the text characteristics for all meta text on the figure
-                #Common colors:
                 #   UNCW teal: '#105456'
                 caption_dict = {'fontname':'Open Sans',
                                 'color': '#105456',
                                 'size': 24,
                                 'weight': 'bold'}
+                
                 metadisp = True #Logical to display metatext in figure
                     
                 if scan_strat == 'RHI':
                     display.plot_rhi(field,sweepnum,vmin=vmin,vmax=vmax,title_flag=title_flag,cmap=cmap,axislabels=(axis, 'AGL (km)'),colorbar_flag=True,colorbar_label=colorbar_label)
                     
-                    ## Contour overlay code
+                    # Contour overlay code
                     if contour_bool:
                         if field==base_field:
                             total_text = contour_overlay(radar,sweepnum,contour_field,base_field,ax,total_text,contour_levels,scan_strat)
-                    ##
                     
                     display.set_limits(ylim=y_lim)
                     display.set_limits(xlim=x_lim)
@@ -223,19 +224,17 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                     plt.yticks(np.arange(0,y_lim[1]+1,step=1))
                     if metadisp:
                         labeled = 'labeled_'                        
-                        #plt.figtext(0.38,0.88,total_text,caption_dict) #Title the figure with the metatext 20180210
-                        plt.figtext(0.38,0.915,total_text,caption_dict) #Title the figure with the metatext most
+                        plt.figtext(0.38,0.915,total_text,caption_dict) #Title the figure with the metatext
                         
                 else:
                         display.plot_ppi(field, sweepnum, vmin = vmin, vmax = vmax, title_flag = title_flag, cmap = cmap, axislabels = (axis, "N-S distance (km)"),colorbar_flag=True, colorbar_label = colorbar_label)
                         
-                        ## Contour overlay code
+                        # Contour overlay code
                         if contour_bool:
                             if field==base_field:
                                 total_text = contour_overlay(radar,sweepnum,contour_field,base_field,ax,total_text,contour_levels,scan_strat)
-                        ##
                         
-                        #Sector scan PARTIALLY IMPLEMENTED
+                        ## Sector scan PARTIALLY IMPLEMENTED
                         if scan_strat == 'Sector':
                             #The edges of the sector are calculated using trigonometry
                             azi_lim = np.asarray([min(radar.azimuth['data']),max(radar.azimuth['data'])])
@@ -251,7 +250,7 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                             plt.plot([0,range_lims[0]],[0,offset[1]],color='#105456',linewidth=7)
                             
                             #The sector edges are then used to create a domain of consistent size that moves with the sector.
-                            #This is currently NOT fully adaptive--it assumes the range is 75km, and only works for certain sectors.
+                            #This is currently NOT fully functional--it assumes the range is 60km, and only works for certain sectors.
                             if (offset[0]<0) and (60+offset[1]-3>-60):
                                 x_lim = [offset[1]-3,60+offset[1]-3]
                             else:
@@ -265,18 +264,16 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                             display.set_limits(ylim=y_lim)
                             display.set_limits(xlim=x_lim)
                             display.set_aspect_ratio(aspect_ratio=1)
-                            #---SECTOR SCAN SETTINGS END HERE---
+                        ## ---SECTOR SCAN SETTINGS END HERE---
 
-                        #This plots the line(s) of constant azimuth for paired PPI/RHI scan strategies
-                        #For now, this is calculated manually. Many commonly-used values are below. Be careful: the trigonometry that 
-                        #goes into these assumes the radar's range is 60km.
+                        #Overlay RHI azimuth on the PPI scans
                         if scan_strat == 'PPI':
                             if azi_overlay['bool']:
                                 max_length = x_lim[1]
                                 x_c,y_c = gen_fun.azi_calculator(azi_overlay['azi_lines'],max_length)
                                 for iter in range(0,np.size(azi_overlay['azi_lines'])):
                                     plt.plot([0,x_c[iter]],[0,y_c[iter]],color=azi_overlay['color'],linewidth=azi_overlay['linewidth'])
-#                            
+                            
                         display.set_limits(ylim=y_lim)
                         display.set_limits(xlim=x_lim)
                         display.set_aspect_ratio(aspect_ratio=1)
@@ -326,25 +323,6 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                     else:
                         save_name = "%s%s.%s.%d.%s.png" %(outpath, filename, field, sweepnum, a_save)
     
-#            try:
-#                save_name = gen_fun.get_savename(filename, sweepnum, outpath, scan_strat, field, azi, dealias_bool) #Legacy from original ROSE
-#                if radar_type=='KASPR':
-#                    raise ValueError #get_savename only works for 
-#            except:
-#                #print("Name is not ROSE or WSR88D compatible. Using generic save name.")
-#                if scan_strat == 'RHI':
-#                    if metadisp==True:
-#                        save_name = "%s%s%s.azi%d.%s.%d.png" %(outpath, labeled, filename, azi, field, sweepnum)
-#                    else:
-#                        save_name = "%s%s.azi%d.%s.%d.png" %(outpath, filename, azi, field, sweepnum)
-#                else:
-#                    ang = 'ang'
-#                    a_save = ang+a_text
-#                    if metadisp:
-#                        save_name = "%s%s%s.%s.%d.%s.png" %(outpath, labeled, filename, field, sweepnum, a_save)
-#                    else:
-#                        save_name = "%s%s.%s.%d.%s.png" %(outpath, filename, field, sweepnum, a_save)
-                
             plt.close('all')
             fig.tight_layout()
             fig.savefig(save_name)
