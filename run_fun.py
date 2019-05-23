@@ -26,7 +26,7 @@ def parse_filelist(filelist, inpath, outpath, radar_type, fields, ranges, plot_b
                    colorbar_labels, x_lim, y_lim, scan_strat, dealias_bool, save_cfradial_bool,
                    name2dealias, new_name, nyquist_vel, Z_mask, Zdr_mask, PhiDP_mask, rhoHV_mask,
                    NCP_mask, SNR_mask, Zdr_offset, snow_rate_bool, vdiv_bool, mountain_clutter_bool, 
-                   contour_bool, base_field, contour_field, contour_levels):
+                   contour_bool, base_field, contour_field, contour_levels, azi_overlay):
     
     # Loop through each file in the list
     length_filelist = np.size(filelist)
@@ -145,9 +145,9 @@ def parse_filelist(filelist, inpath, outpath, radar_type, fields, ranges, plot_b
         # Create and save plots
         if plot_bool == True:
             if contour_bool:
-                Master_plotter.plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps, colorbar_labels, figsize, dealias_bool, x_lim, y_lim, contour_bool, base_field, contour_field, contour_levels)
+                Master_plotter.plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps, colorbar_labels, figsize, dealias_bool, x_lim, y_lim, contour_bool, base_field, contour_field, contour_levels, azi_overlay)
             else:
-                Master_plotter.plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps, colorbar_labels, figsize, dealias_bool, x_lim, y_lim, contour_bool, base_field, contour_field, contour_levels)
+                Master_plotter.plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps, colorbar_labels, figsize, dealias_bool, x_lim, y_lim, contour_bool, base_field, contour_field, contour_levels, azi_overlay)
             gc.collect()
         else: 
             #Do nothing

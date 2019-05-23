@@ -131,3 +131,28 @@ def save_object(obj, filename):
     """
     with open(filename, 'wb') as output:
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
+        
+def azi_calculator(azi_lines,max_length):
+    count = 0
+    x_c = np.empty(np.size(azi_lines))
+    y_c = np.empty(np.size(azi_lines))
+    for count in range(0,np.size(azi_lines)):
+        azi = azi_lines[count]
+        if azi > 0 and azi < 90:
+                azi_rad = np.deg2rad(azi)
+                x_c[count] = np.cos(azi_rad)*max_length
+                y_c[count] = np.sin(azi_rad)*max_length
+        elif azi > 90 and azi < 180:
+                azi_rad = np.deg2rad(azi-90)
+                x_c[count] = np.cos(azi_rad)*max_length
+                y_c[count] = -np.sin(azi_rad)*max_length
+        elif azi > 180 and azi < 270:
+                azi_rad = np.deg2rad(azi-180)
+                x_c[count] = -np.cos(azi_rad)*max_length
+                y_c[count] = -np.sin(azi_rad)*max_length
+        elif azi > 270 and azi < 360:
+                azi_rad = np.deg2rad(azi-270)
+                x_c[count] = -np.cos(azi_rad)*max_length
+                y_c[count] = np.sin(azi_rad)*max_length
+            
+    return x_c,y_c

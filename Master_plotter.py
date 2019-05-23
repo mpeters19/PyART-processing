@@ -70,7 +70,7 @@ def contour_overlay(radar, sweepnum, contourField, baseField, ax, total_text, co
 
    
 def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps, 
-         colorbar_labels, figsize, dealias_bool, x_lim, y_lim, contour_bool, base_field, contour_field, contour_levels, axis=None,
+         colorbar_labels, figsize, dealias_bool, x_lim, y_lim, contour_bool, base_field, contour_field, contour_levels, azi_overlay, axis=None,
          title_flag=False,colorbar_flag = True,):
     """
     DESCRIPTION: Plots polar RHI and PPI data from netCDF on a cartesian grid. 
@@ -270,37 +270,13 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                         #This plots the line(s) of constant azimuth for paired PPI/RHI scan strategies
                         #For now, this is calculated manually. Many commonly-used values are below. Be careful: the trigonometry that 
                         #goes into these assumes the radar's range is 60km.
-                        #plt.plot([0,22.29],[0,-30],color='#105456',linewidth=7)
-                        #plt.plot([0,-89.12],[0,12.53],color='#105456',linewidth=5) #azi = 278
-                        #plt.plot([0,-81.57],[0,-38.04],color='#105456',linewidth=5) #azi = 245
-                        #plt.plot([0,12.53],[0,-89.12],color='#105456',linewidth=5) #azi = 173
-                        
-                        #plt.plot([0,-15.6],[0,-88.6],color='#105456',linewidth=5) #azi = 187.5
-                        #plt.plot([0,-84.42],[0,31.2],color='#105456',linewidth=5) #azi = 280
-                        
-                        #plt.plot([0,81.6],[0,38.0],color='#105456',linewidth=5) #azi = 25
-                        #plt.plot([0,-83.1],[0,34.4],color='#105456',linewidth=5) #azi = 292.5
-                        
-                        #plt.plot([0,-70.9],[0,24.4],color='#105456',linewidth=5) #azi = 289
-                        #plt.plot([0,24.4],[0,70.9],color='#105456',linewidth=5) #azi = 19
-                        #plt.plot([0,68.5],[0,30.5],color='#105456',linewidth=5) #azi = 24
-                        #plt.plot([0,87.7],[0,-20.2],color='#105456',linewidth=5) #azi = 103
-                        #plt.plot([0,64.7],[0,-62.5],color='#105456',linewidth=5) #azi = 134
-                        #plt.plot([0,13.02],[0,-73.86],color='#105456',linewidth=5) #azi = 170
-                        
-                        #plt.plot([0,-64.95],[0,37.5],color='#105456',linewidth=5) #azi = 300 NOTE also same as azi=299 to two decimals
-                        #plt.plot([0,-68],[0,31.7],color='#105456',linewidth=5) #azi = 295 NOTE also used as azi=294
-                        #plt.plot([0,-25.65],[0,-70.48],color='#105456',linewidth=5) #azi = 200
-                        #plt.plot([0,48.2],[0,-57.45],color='#105456',linewidth=5) #azi = 145
-                        #plt.plot([0,64.95],[0,-37.5],color='#105456',linewidth=5) #azi = 120
-                        
-                        #plt.plot([0,-6.53],[0,-74.71],color='#105456',linewidth=5) #azi = 185
-                        #plt.plot([0,-74.82],[0,5.23],color='#105456',linewidth=5) #azi = 274
-                        
-                        #plt.plot([0,-70],[0,0],color='#105456',linewidth=5) #azi=270 NOTE also used for azi = 271
-                        #plt.plot([0,29.3],[0,-69],color='#105456',linewidth=5) #azi=157
-                        #plt.plot([0,-65],[0,-37],color='#105456',linewidth=5) #azi=240 NOTE also used for azi = 243 and azi = 242 and azi = 239
-
+                        if scan_strat == 'PPI':
+                            if azi_overlay['bool']:
+                                max_length = x_lim[1]
+                                x_c,y_c = gen_fun.azi_calculator(azi_overlay['azi_lines'],max_length)
+                                for iter in range(0,np.size(azi_overlay['azi_lines'])):
+                                    plt.plot([0,x_c[iter]],[0,y_c[iter]],color=azi_overlay['color'],linewidth=azi_overlay['linewidth'])
+#                            
                         display.set_limits(ylim=y_lim)
                         display.set_limits(xlim=x_lim)
                         display.set_aspect_ratio(aspect_ratio=1)

@@ -42,16 +42,12 @@ import numpy as np
 from multiprocessing import Process
 
 ######### Define Variables #############
-### Path Variables (strings)
-#inpath = 'H:\\store radar files\\KASPR\\20180104\\PPI'
-inpath = 'H:\\store radar files\\CSU-CHILL\\20180201\\X\\PPI\\'
-#inpath = 'H:\\store radar files\\NEXRAD\\KCYS'
-outpath = 'H:\\radar output\\testImages\\optimization\\bleh'
+### Path Variables
+inpath = 'H:\\store radar files\\KASPR\\20180104\\PPI\\'
+outpath = 'H:\\radar output\\KASPR\\20180104\\PPI'
 
 ### File and Data Variables ###
-
-# String
-wildcard = 'CHX' #Common wildcards are below
+wildcard = 'KASPR' #Common wildcards are below
 #CHL: CSU-CHILL S-band
 #CHX: CSU-CHILL X-band
 #KASPR: SBU Ka-band
@@ -59,7 +55,13 @@ wildcard = 'CHX' #Common wildcards are below
 # KASPR, CHILL, and NEXRAD are the only fully-implemented radars for now
 #KXA: Dallas HF-S
 #KXAS: NBC5 StormRanger
+scan_strat = 'PPI' #Possible entries are below
+#PPI: Plan view at a specific tilt angle
+#RHI: Cross section along a specific azimuth
+#Sector: Plan view at a specific tilt angle, with a confined set of azimuths. ONLY PARTIALLY IMPLEMENTED
+# PyART can be used with other scan strategies but these are not yet supported in this toolkit.
 
+# Determine radar type
 if wildcard == 'CHX':
     radar_type = 'CHILL'
 elif wildcard == 'CHL':
@@ -73,15 +75,6 @@ else:
         print("WARNING: Unknown radar type! Processing with NEXRAD settings to give best chance of success.")
         radar_type = 'NEXRAD'
     
-# String
-scan_strat = 'PPI' #Possible entries are below
-if radar_type == 'NEXRAD':
-    scan_strat = 'PPI' #NEXRAD only scans in PPI mode
-#PPI: Plan view at a specific tilt angle
-#RHI: Cross section along a specific azimuth
-#Sector: Plan view at a specific tilt angle, with a confined set of azimuths. ONLY PARTIALLY IMPLEMENTED
-# PyART can be used with other scan strategies but these are not yet supported in this toolkit.
-
 # List of strings (field names)
 #CSU-CHILL: ['reflectivity','corrected_velocity','corrected_differential_reflectivity','spectrum_width','cross_correlation_ratio','normalized_coherent_power','specific_differential_phase']
 #HF-S: ['DBZH','DBZV','ZDR','RHOHV','PHIDP','SNRHC','SNRVC','dealiasVELH']
@@ -90,59 +83,54 @@ if radar_type == 'NEXRAD':
 #NEXRAD: ['reflectivity','dealiased_velocity','spectrum_width','cross_correlation_ratio','differential_reflectivity']
 #StormRanger:
 #
+#fields: strings, refer to the data types observed
+#ranges: numerical tuples, the ranges corresponding to the fields. ORDER OF THE RANGES MUST MATCH ORDER OF FIELDS
 if radar_type=='CHILL':
     fields = ['reflectivity','dealiased_velocity','corrected_differential_reflectivity','spectrum_width','cross_correlation_ratio','normalized_coherent_power','one_way_differential_phase','two_way_differential_phase']
+    ranges = [(-5,25),(-20,20),(-1,2),(0,4),(0.4,1),(0,1),(-60,-120),(-1.5,1.5)] #CSU-CHILL (winter) X-band
 elif radar_type=='KASPR':
     fields = ['correlation_coefficient','differential_reflectivity','PyART_dealiased_velocity','reflectivity','spectrum_width','linear_depolarization_ratio','snr']
-elif radar_type=='NEXRAD':
-    fields = ['reflectivity','dealiased_velocity','spectrum_width','cross_correlation_ratio','differential_reflectivity']
-
-# List of numeric tuples (ranges for data)
-# ORDER OF THE RANGES MUST MATCH ORDER OF FIELDS
-#ranges = [(-5,65),(-40,40),(-3,5),(0,8),(0.5,1),(0,1),(-5,5)] #CSU-CHILL (summer)
-#ranges = [(-5,25),(-40,40),(-1,2),(0,8),(0.4,1),(0,1),(-30,-60),(-0.5,0.5)] #CSU-CHILL (winter) S-band
-#ranges = [(0,60),(0,60),(-20,0),(0,1),(0,180),(0,1),(0,1),(-40,40)] #HF-S, with broken Zdr
-if radar_type=='CHILL':
-    ranges = [(-5,25),(-20,20),(-1,2),(0,4),(0.4,1),(0,1),(-60,-120),(-1.5,1.5)] #CSU-CHILL (winter)
-elif radar_type=='KASPR':
     ranges = [(0.5,1),(-2,2),(-35,35),(-5,40),(0,3),(-40,-20),(0,100)] #KASPR (commonly-used) (winter)
 elif radar_type=='NEXRAD':
+    fields = ['reflectivity','dealiased_velocity','spectrum_width','cross_correlation_ratio','differential_reflectivity']
     ranges = [(-5,50),(-50,50),(0,12),(0,1),(-4,4)]
+
+# Other common ranges
+#ranges = [(-5,25),(-40,40),(-1,2),(0,8),(0.4,1),(0,1),(-30,-60),(-0.5,0.5)] #CSU-CHILL (winter) S-band
+#ranges = [(-5,65),(-40,40),(-3,5),(0,8),(0.5,1),(0,1),(-5,5)] #CSU-CHILL (summer)
 #ranges = #StormRanger
+#ranges = [(0,60),(0,60),(-20,0),(0,1),(0,180),(0,1),(0,1),(-40,40)] #HF-S, with broken Zdr
 
 ### Plotting Variables ###
+plot_bool = True #Determines whether to make plots or not
 
-# Boolean
-plot_bool = True
+# Set x and y limits for radar plot
+if scan_strat != 'RHI':
+    x_lim = [-60,60] #CSU-CHILL PPI (or sector)
+    y_lim = [-60,60]
+    if radar_type == 'NEXRAD':
+        x_lim = [-175,175]
+        y_lim = [-175,175]
+if scan_strat == 'RHI':
+    x_lim = [0,60]
+    y_lim = [0,9]
 
-# Numeric tuple
+# Other useful x-limits
 #x_lim = [-375,375] #HF-S PPI
 #x_lim =  #StormRanger
 #x_lim = [-30,30] #KASPR PPI
 #x_lim = [0,30] #KASPR RHI
 #x_lim = [0,50] #CSU-CHILL Bragg waves RHI
-#x_lim = [0,75] #CSU-CHILL RHI
-if scan_strat != 'RHI':
-    x_lim = [-60,60] #CSU-CHILL PPI (or sector)
-    if radar_type == 'NEXRAD':
-        x_lim = [-175,175]
-if scan_strat == 'RHI':
-    x_lim = [0,60]
-# Numeric tuple
+#x_lim = [0,75] #CSU-CHILL X-band max RHI range
+# Other useful y-limits
 #y_lim = [-375,375] #HF-S PPI
 #y_lim = #StormRanger
 #y_lim = [-30,30] #KASPR PPI
 #y_lim = [0,8] #KASPR RHI
 #y_lim = [0,5] #CSU-CHILL Bragg waves RHI
 #y_lim = [0,16] #CSU-CHILL RHI (summer)
-if scan_strat != 'RHI':
-    y_lim = [-60,60] #CSU-CHILL PPI (or sector)
-    if radar_type == 'NEXRAD':
-        y_lim = [-175,175]
-if scan_strat == 'RHI':
-    y_lim = [0,9] #Winter storms are usually 0-6km or 0-9km
 
-# List of strings (colorbar labelsl)
+# List of strings (colorbar labels)
 #colorbar_labels = ['DBZ (dBZ)','DBZ (dBZ)','ZDR (DB)','rhoHV','PhiDP','SNR','SNR','V (m/s)'] #HF-S
 #colorbar_labels = #StormRanger
 #colorbar_labels = ['rhoHV','PhiDP','ZDR (DB)','V (m/s)','DBZ (dBZ)','Width (m/s)'] #KASPR few
@@ -154,39 +142,29 @@ elif radar_type=='NEXRAD':
     colorbar_labels = ['DBZ (dBZ)','V (m/s)','Width (m/s)','rhoHV','Zdr (dB)']
 
 ### Dealiasing Variables ###
-# Boolean
 dealias_bool = True
 save_cfradial_bool = False #Save the radar data with dealiased velocity in a CF/Radial file
 
-# String
 if radar_type=='CHILL':
     name2dealias = 'corrected_velocity' #CSU-CHILL
+    new_name = 'dealiased_velocity'
+    if wildcard=='CHL':
+        nyquist_vel = 27.5039 #S-band CHILL
+    elif wildcard=='CHX':
+        nyquist_vel = 25.893 #X-band CHILL
 elif radar_type=='KASPR':
     name2dealias = 'mean_doppler_velocity_folded' #KASPR
-elif radar_type=='NEXRAD':
-    name2dealias = 'velocity'
-#name2dealias = 'VELH' #HF-S
-#name2dealias = #StormRanger
-
-# String
-if radar_type=='CHILL' or radar_type=='NEXRAD':
-    new_name = 'dealiased_velocity'
-elif radar_type=='KASPR':
     new_name = 'PyART_dealiased_velocity' #KASPR
-#new_name = 'dealiasVELH' #HF-S
-#new_name = #StormRanger
-
-# Numeric value; if working with ROSE data, set to None.
-if wildcard=='CHL':
-    nyquist_vel = 27.5039 #S-band CHILL
-elif wildcard=='CHX':    
-    nyquist_vel = 25.893 #X-band CHILL
-    
-if radar_type=='KASPR':
     nyquist_vel= 9.999 #KASPR
 elif radar_type=='NEXRAD':
-    nyquist_vel = 26.389 #KCYS 2018 02 01, this varies and will need to be detected automatically
+    name2dealias = 'velocity'
+    new_name = 'dealiased_velocity'
+    nyquist_vel = 26.389 #KCYS 2018 02 01, this can vary and will need to be detected automatically
+#name2dealias = 'VELH' #HF-S
+#new_name = 'dealiasVELH' #HF-S
 #nyquist_vel = 8.5048 #HF-S
+#name2dealias = #StormRanger
+#new_name = #StormRanger
 #nyquist_vel = 26.389
 
 #######################################
@@ -261,8 +239,8 @@ NCP_mask = {
         "range": (0.15, 1.2)
         }
 SNR_mask = {
-        "bool": False,
-        "range": (8, 100)
+        "bool": True,
+        "range": (5, 100)
         }
 
 #   Account for Zdr offset on radars such as KASPR or HF-S
@@ -280,7 +258,6 @@ else:
             "bool": False,
             "offset": 0.0}
        
-
 #   Logicals for derived data
 snow_rate_bool = True #Derive the Rasmussen snow rate from reflectivity
 vdiv_bool = True #Calculate the vertical divergence of horizontal dealiased velocity (RHI only)
@@ -294,11 +271,20 @@ elif radar_type=='NEXRAD':
     mountain_clutter_bool = True #Needs to be set manually
 
 #   Contour overlay settings
-contour_bool = True
-base_field = 'dealiased_velocity'
-contour_field = 'reflectivity'
-contour_levels = [15]
+contour_bool = False
+base_field = 'dealiased_velocity' #Background field
+contour_field = 'reflectivity' #Field that will be contoured over the base field
+contour_levels = [15] #Values for contours
 
+#   Settings controlling RHI azimuth overlay on PPI plot
+if scan_strat == 'PPI':
+    azi_overlay = {
+            "bool": True,
+            "azi_lines": [134,224],
+            "color": "#105456",
+            "linewidth": 4.2
+            }
+#azilines, color, linewidth
 
 #   Parse through filelist
 # Processing is conducted within individual processes that are started and ended with each file.
@@ -316,7 +302,7 @@ if __name__== '__main__':
                                                                 cmaps, colorbar_labels, x_lim, y_lim, scan_strat, 
                                                                 dealias_bool, save_cfradial_bool, name2dealias, new_name, nyquist_vel, Z_mask, Zdr_mask, PhiDP_mask,
                                                                 rhoHV_mask, NCP_mask, SNR_mask, Zdr_offset, snow_rate_bool, vdiv_bool, mountain_clutter_bool,
-                                                                contour_bool, base_field, contour_field, contour_levels))
+                                                                contour_bool, base_field, contour_field, contour_levels, azi_overlay))
             p.start()
             #print(p.is_alive())
             p.join()
@@ -326,23 +312,4 @@ if __name__== '__main__':
             
         print("Completed!")
 
-
-#run_fun.parse_filelist(filelist_first, inpath, outpath, CHILL, fields, ranges, plot_bool, 
-#                       cmaps, colorbar_labels, x_lim, y_lim, scan_strat, 
-#                       dealias_bool, name2dealias, new_name, nyquist_vel, Z_mask, Zdr_mask, PhiDP_mask,
-#                       rhoHV_mask, NCP_mask, SNR_mask, Zdr_offset)
-#
-#run_fun.parse_filelist(filelist_second, inpath, outpath, CHILL, fields, ranges, plot_bool, 
-#                       cmaps, colorbar_labels, x_lim, y_lim, scan_strat, 
-#                       dealias_bool, name2dealias, new_name, nyquist_vel, Z_mask, Zdr_mask, PhiDP_mask,
-#                       rhoHV_mask, NCP_mask, SNR_mask, Zdr_offset)
-#
-#                       
 gc.collect()
-#
-#snapshot = tracemalloc.take_snapshot()
-#top_stats = snapshot.statistics('lineno')
-#
-#print("[ Top 10 ]")
-#for stat in top_stats[:10]:
-#    print(stat)

@@ -357,8 +357,13 @@ def removeNoiseSNR(radar, radar_fieldnames, snr_min, snr_max):
     #print radar.fields #If you suspect the data is blank, uncomment this to print a sample to the console
     
     for field in radar_fieldnames:
-        radar.fields[field]['data'].data[over] = None
-        radar.fields[field]['data'].data[under] = None
+        try:
+            radar.fields[field]['data'].data[over] = None
+            radar.fields[field]['data'].data[under] = None
+        except NotImplementedError:
+            radar.fields[field]['data'][over] = None
+            radar.fields[field]['data'][under] = None
+        
     
     return radar
     
