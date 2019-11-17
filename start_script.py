@@ -48,7 +48,7 @@ Created on Thu Aug 06 14:01:55 2015
 
 @author: thecakeisalie
 
-Version date: 5/23/2019
+Version date: 11/17/2019
 Daniel Hueholt
 North Carolina State University
 Undergraduate Research Assistant at Environment Analytics
@@ -295,6 +295,14 @@ if scan_strat == 'PPI':
             "color": "#105456",
             "linewidth": 4.2
             }
+elif scan_strat == 'RHI':
+    azi_overlay = {
+        "bool": False,
+        "azi_lines": [0],
+        "color": "#105456",
+        "linewidth": 4.2
+        }
+        
 
 #   Parse through filelist
 # Processing is conducted within individual processes that are started and ended with each file.
