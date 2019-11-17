@@ -11,9 +11,9 @@ Environment Analytics code written to aid in the processing, analysis, and visua
 ## Setup (in Spyder) before running scripts for the first time
 From start_script, go to Run->Configuration per file.  
 In the “Console” pane, choose the “Execute in an external system terminal” radio button.  
-    The default iPython console can't handle multiprocessing functionality; thus, this executes in a cmd window instead.  
+      The default iPython console can't use multiprocessing functions; this executes code in a cmd window instead.  
 In the “External system terminal” pane, check the “Interact with the Python console after execution” box.  
-    This prevents the cmd window from closing when an error occurs.
+      This prevents the cmd window from closing when an error occurs.
 
 ## Even if the code works, some warnings appear in the console! Don’t panic.
 **DeprecationWarning about interpretation as integer (tracks to seaborn palettes line 777)**  
