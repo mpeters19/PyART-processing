@@ -11,11 +11,12 @@ Environment Analytics code written to aid in the processing, analysis, and visua
 ## Setup (in Spyder) before running scripts for the first time
 From start_script, go to Run->Configuration per file.  
 In the “Console” pane, choose the “Execute in an external system terminal” radio button.  
-(The multiprocessing functions cannot be run in the default iPython console; this executes the code in a cmd window instead.)
-In the “External system terminal” pane, check the “Interact with the Python console after execution” box. (This prevents the cmd window from closing when an error occurs.)  
+    The default iPython console can't handle multiprocessing functionality; thus, this executes in a cmd window instead.  
+In the “External system terminal” pane, check the “Interact with the Python console after execution” box.  
+    This prevents the cmd window from closing when an error occurs.
 
 ## Even if the code works, some warnings appear in the console! Don’t panic.
-**DeprecationWarning about interpretation as integer (tracks to seaborn palettes line 777)**
+**DeprecationWarning about interpretation as integer (tracks to seaborn palettes line 777)**  
 Generated in external package seaborn, which is used to generate our Kdp colormap. It warns about a future problem when Python drops support for a variable conversion used in seaborn. There isn’t an obvious way for us to fix this; hopefully the seaborn group will update the package before this becomes an issue. For now, it has no effect on the code beyond the console warning.  
 
 **RuntimeWarnings about invalid values encountered in roots, greater than, and less than (tracks to various functions in quality_control, region_dealias, and calculated_fields)**  
