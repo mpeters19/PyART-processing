@@ -487,6 +487,7 @@ class RadarDisplay(object):
         data = _mask_outside(mask_outside, data, vmin, vmax)
 
         # plot the data
+        R = np.sqrt(x ** 2 + y ** 2) * np.sign(y)
         if reverse_xaxis is None:
             # reverse if all distances are nearly negative (allow up to 1 m)
             reverse_xaxis = np.all(R < 1.)
