@@ -9,6 +9,13 @@ Class for creating plots from Radar objects.
     :template: dev_template.rst
 
     RadarDisplay
+    
+        *****MODIFIED VERSION
+    Modified by Daniel Hueholt
+    Undergraduate Research Assistant at Environment Analytics
+    1/29/2019
+    
+    Modified to change space used by colorbar
 
 """
 
@@ -480,13 +487,6 @@ class RadarDisplay(object):
         data = _mask_outside(mask_outside, data, vmin, vmax)
 
         # plot the data
-        # check for negative values
-        sweep_slice = self._radar.get_slice(sweep)
-        az_mean = np.abs(np.mean(self._radar.azimuth['data'][sweep_slice]))
-        if 89.5 <= az_mean <= 90.0:
-            R = np.sqrt(x ** 2 + y ** 2) * np.sign(x)
-        else:
-            R = np.sqrt(x ** 2 + y ** 2) * np.sign(y)
         if reverse_xaxis is None:
             # reverse if all distances are nearly negative (allow up to 1 m)
             reverse_xaxis = np.all(R < 1.)
@@ -1003,7 +1003,8 @@ class RadarDisplay(object):
                 field = self.plot_vars[-1]
             label = self._get_colorbar_label(field)
 
-        cb = fig.colorbar(mappable, orientation=orient, ax=ax, cax=cax)
+        #cb = fig.colorbar(mappable, orientation=orient, ax=ax, cax=cax) #ORIGINAL
+        cb = fig.colorbar(mappable,fraction=0.08,pad=0.01,aspect=11, orientation=orient, ax=ax, cax=cax) # MODIFIED 1/29/2019 Daniel Hueholt
         if ticks is not None:
             cb.set_ticks(ticks)
         if ticklabs:
