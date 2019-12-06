@@ -26,6 +26,9 @@ import copy
 import sys
 
 import numpy as np
+from netCDF4 import num2date, date2num
+
+import time as taa
 
 from ..config import get_metadata
 from ..lazydict import LazyLoadDict
@@ -347,7 +350,19 @@ class Radar(object):
 
     def iter_slice(self):
         """ Return an iterator which returns sweep slice objects. """
-        return (slice(s, e+1) for s, e in self.iter_start_end())
+        #return (slice(s, e+1) for s, e in self.iter_start_end())
+        
+        ##FIX by Daniel Hueholt 5/21/2019
+        suppressant = 0
+        for s,e in self.iter_start_end():
+            if isinstance(s,np.float32) or isinstance(s,np.float64) or isinstance(s,float):
+                suppressant = 1
+                
+        if suppressant==1:
+          return (slice(int(s), int(e)+1) for s, e in self.iter_start_end())      
+        elif suppressant==0:
+            return (slice(s, e+1) for s, e in self.iter_start_end())
+        ##
 
     def iter_field(self, field_name):
         """ Return an iterator which returns sweep field data. """
@@ -381,6 +396,14 @@ class Radar(object):
     def get_slice(self, sweep):
         """ Return a slice for selecting rays for a given sweep. """
         start, end = self.get_start_end(sweep)
+        
+        ## FIX by Daniel Hueholt 5/21/2019
+        if isinstance(start,np.float32) or isinstance(start,np.float64) or isinstance(start,float):
+            start = int(start)
+            end = int(end)
+        ##
+        
+        
         return slice(start, end+1)
 
     def get_field(self, sweep, field_name, copy=False):
@@ -857,8 +880,23 @@ class Radar(object):
         ray_count = (self.sweep_end_ray_index['data'] -
                      self.sweep_start_ray_index['data'] + 1)[sweeps]
         ssri = self.sweep_start_ray_index['data'][sweeps]
-        rays = np.concatenate(
-            [range(s, s+e) for s, e in zip(ssri, ray_count)]).astype('int32')
+        #rays = np.concatenate(
+        #    [range(s, s+e) for s, e in zip(ssri, ray_count)]).astype('int32')
+        
+        ## FIX by Daniel Hueholt 5/21/2019
+        suppressant = 0
+        for s,e in zip(ssri,ray_count):
+            if isinstance(s,np.float32) or isinstance(s,np.float64) or isinstance(s,float):
+                s = int(s)
+                e = int(e)
+                rays = np.concatenate([range(s,s+e)]).astype('int32')
+                suppressant = 1
+        
+        if suppressant==0:
+            rays = np.concatenate(
+                    [range(s, s+e) for s, e in zip(ssri, ray_count)]).astype('int32')
+            
+        ##
 
         # radar location attribute dictionary selector
         if len(self.altitude['data']) == 1:
