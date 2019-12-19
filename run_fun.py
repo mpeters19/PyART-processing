@@ -119,7 +119,7 @@ def parse_filelist(filelist, inpath, outpath, radar_type, fields, ranges, plot_b
             vdiv_bool = False
         if vdiv_bool:
             radar = calculated_fields.velocity_vertical_divergence(radar,fields)
-            ranges.append((0,3))
+            ranges.append((0,2))
             cmaps.append('inferno')
             colorbar_labels.append('|vDiv| ms^(-1)/gate')
         
