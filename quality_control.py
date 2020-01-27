@@ -349,20 +349,16 @@ def removeNoiseSNR(radar, radar_fieldnames, snr_min, snr_max):
         
     """
     # Check to see if values are in range
-    over = (radar.fields['snr']['data'].data > snr_max)
-    under = (radar.fields['snr']['data'].data < snr_min)
+    within = np.logical_and(radar.fields['snr']['data'].data < snr_max, radar.fields['snr']['data'].data > snr_min)
     
     # Troubleshooting
-    #print radar_fieldnames
-    #print radar.fields #If you suspect the data is blank, uncomment this to print a sample to the console
+    # print(radar_fieldnames)
     
     for field in radar_fieldnames:
         try:
-            radar.fields[field]['data'].data[over] = None
-            radar.fields[field]['data'].data[under] = None
+            radar.fields[field]['data'].data[~within] = None
         except NotImplementedError:
-            radar.fields[field]['data'][over] = None
-            radar.fields[field]['data'][under] = None
+            radar.fields[field]['data'][~within] = None
         
     
     return radar
