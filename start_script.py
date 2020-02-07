@@ -65,8 +65,8 @@ from multiprocessing import Process
 
 ######### Define Variables #############
 ### Path Variables
-inpath = 'H:\\store radar files\\KASPR\\20191210\\visual_test_set\\'
-outpath = 'H:\\radar output\\KASPR\\20191210\\visual_test_set\\'
+inpath = 'H:\\store radar files\\KASPR\\20200119\\'
+outpath = 'H:\\radar output\\KASPR\\20200119\\'
 
 ### File and Data Variables ###
 wildcard = 'KASPR' #Common wildcards are below
@@ -110,7 +110,7 @@ if radar_type=='CHILL':
     ranges = [(-5,25),(-20,20),(-1,2),(0,4),(0.4,1),(0,1),(-60,-120),(-1.5,1.5)] #CSU-CHILL (winter) X-band
 elif radar_type=='KASPR':
     fields = ['correlation_coefficient','differential_reflectivity','PyART_dealiased_velocity','reflectivity','spectrum_width','linear_depolarization_ratio','snr']
-    ranges = [(0.5,1),(-2,2),(-45,45),(-5,40),(0,3),(-40,-20),(20,100)] #KASPR (commonly-used) (winter)
+    ranges = [(0.5,1),(-2,2),(-45,45),(-20,30),(0,3),(-40,-20),(8,100)] #KASPR (commonly-used) (winter)
 elif radar_type=='NEXRAD':
     fields = ['reflectivity','dealiased_velocity','spectrum_width','cross_correlation_ratio','differential_reflectivity']
     ranges = [(-5,50),(-50,50),(0,12),(0,1),(-4,4)]
@@ -132,7 +132,7 @@ if scan_strat != 'RHI':
         x_lim = [-175,175]
         y_lim = [-175,175]
 if scan_strat == 'RHI':
-    x_lim = [-40,40]
+    x_lim = [-30,30]
     y_lim = [0,12]
 
 # Other useful x-limits
@@ -251,7 +251,7 @@ NCP_mask = {
         }
 SNR_mask = {
         "bool": True,
-        "range": (20, 100)
+        "range": (8, 100)
         }
 
 #   Account for Zdr offset on radars such as KASPR or HF-S

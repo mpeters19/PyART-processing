@@ -222,9 +222,12 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                     display.set_limits(xlim=x_lim)
                     display.set_aspect_ratio(aspect_ratio=1) #important!!
                     plt.yticks(np.arange(0,y_lim[1]+1,step=1))
+                    plt.tight_layout()
                     if metadisp:
-                        labeled = 'labeled_'                        
-                        plt.figtext(0.38,0.915,total_text,caption_dict) #Title the figure with the metatext
+                        labeled = 'labeled_' 
+                        plt.figtext(0.703,0.0762,total_text,caption_dict) #Title the figure with the metatext
+
+                    
                         
                 else:
                         display.plot_ppi(field, sweepnum, vmin = vmin, vmax = vmax, title_flag = title_flag, cmap = cmap, axislabels = (axis, "N-S distance (km)"),colorbar_flag=True, colorbar_label = colorbar_label)
@@ -284,6 +287,7 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                                 plt.figtext(0.1,0.905,total_text,caption_dict) #Title the figure with the metatext
                             else:
                                 plt.figtext(0.17,0.905,total_text,caption_dict) #Title the figure with the metatext
+                        plt.tight_layout()
                             
             except ValueError:
                 print("Error in sweep!") #Prevents the plotter from failing silently on a large number of files
@@ -323,8 +327,8 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                     else:
                         save_name = "%s%s.%s.%d.%s.png" %(outpath, filename, field, sweepnum, a_save)
     
+            
             plt.close('all')
-            fig.tight_layout()
             fig.savefig(save_name)
             del display
             gc.collect()
