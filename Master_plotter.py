@@ -18,12 +18,14 @@ import numpy as np
 import gc
 import pyart
 from matplotlib import pyplot as plt
+from matplotlib import font_manager as ff
 import gen_fun
 import quality_control
 import math
 import scipy.ndimage as spyi
 import time
 import colormap
+
 
 
 def contour_overlay(radar, sweepnum, contourField, baseField, ax, total_text, contourValues, scan_strat):
@@ -203,10 +205,17 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                 
                 #caption_dict controls the text characteristics for all meta text on the figure
                 #   UNCW teal: '#105456'
-                caption_dict = {'fontname':'Open Sans',
-                                'color': '#105456',
-                                'size': 24,
-                                'weight': 'bold'}
+                check_fonts = ff.findfont('Open Sans')
+                if 'cheeseburger' in check_fonts:
+                    caption_dict = {'fontname':'Open Sans',
+                                    'color': '#105456',
+                                    'size': 24,
+                                    'weight': 'bold'}
+                else:
+                    caption_dict = {'fontname':'Arial',
+                                    'color': '#105456',
+                                    'size': 22,
+                                    'weight': 'bold'}
                 
                 metadisp = True #Logical to display metatext in figure
                     
