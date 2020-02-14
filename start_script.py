@@ -65,8 +65,8 @@ from multiprocessing import Process
 
 ######### Define Variables #############
 ### Path Variables
-inpath = 'H:\\store radar files\\KASPR\\20200119\\'
-outpath = 'H:\\radar output\\KASPR\\20200119\\'
+inpath = 'C:\\Users\\mpete19\\Documents\\kaspr\\data\\20191201\\PPI\\'
+outpath = 'C:\\Users\\mpete19\\Documents\\kaspr\\images\\20191201\\PPI\\'
 
 ### File and Data Variables ###
 wildcard = 'KASPR' #Common wildcards are below
@@ -78,7 +78,7 @@ wildcard = 'KASPR' #Common wildcards are below
 #KXA: Dallas HF-S
 #KXAS: NBC5 StormRanger
 
-scan_strat = 'RHI' #Possible entries are below
+scan_strat = 'PPI' #Possible entries are below
 #PPI: Plan view at a specific tilt angle
 #RHI: Cross section along a specific azimuth
 #Sector: Plan view at a specific tilt angle, with a confined set of azimuths. ONLY PARTIALLY IMPLEMENTED
@@ -112,9 +112,8 @@ elif radar_type=='KASPR':
     fields = ['correlation_coefficient','differential_reflectivity','PyART_dealiased_velocity','reflectivity','spectrum_width','linear_depolarization_ratio','snr']
     ranges = [(0.5,1),(-2,2),(-45,45),(-20,30),(0,3),(-40,-20),(0,100)] #KASPR (commonly-used) (winter)
 elif radar_type=='NEXRAD':
-    fields = ['reflectivity','dealiased_velocity','spectrum_width','cross_correlation_ratio','differential_reflectivity']
-    ranges = [(-5,50),(-50,50),(0,12),(0,1),(-4,4)]
-
+    fields = ['correlation_coefficient','differential_reflectivity','PyART_dealiased_velocity','reflectivity','spectrum_width','linear_depolarization_ratio','snr','kdp','differential_phase']
+    ranges = [(0.5,1),(-2,2),(-45,45),(-5,40),(0,3),(-40,-20),(20,100),(-3,3),(-180,180)] #KASPR (commonly-used) (winter)
 # Other common ranges
 #ranges = [(-5,25),(-40,40),(-1,2),(0,8),(0.4,1),(0,1),(-30,-60),(-0.5,0.5)] #CSU-CHILL (winter) S-band
 #ranges = [(-5,65),(-40,40),(-3,5),(0,8),(0.5,1),(0,1),(-5,5)] #CSU-CHILL (summer)
@@ -131,6 +130,9 @@ if scan_strat != 'RHI':
     if radar_type == 'NEXRAD':
         x_lim = [-175,175]
         y_lim = [-175,175]
+    elif radar_type == 'KASPR':
+        x_lim = [-30,30]
+        y_lim = [-30,30]
 if scan_strat == 'RHI':
     x_lim = [-30,30]
     y_lim = [0,12]
@@ -151,7 +153,7 @@ if scan_strat == 'RHI':
 if radar_type=='CHILL':
     colorbar_labels = ['DBZ (dBZ)','V (m/s)','ZDR (dB)','Width (m/s)','rhoHV','NCP','PhiDP (deg)','KDP (deg/km)'] #CSU-CHILL
 elif radar_type=='KASPR':
-    colorbar_labels = ['rhoHV','Zdr (dB)','V (m/s)','Z (dBZ)','Spectral Width (m/s)','LDR (dB)','SNR'] #KASPR common
+    colorbar_labels = ['rhoHV','Zdr (dB)','V (m/s)','Z (dBZ)','Spectral Width (m/s)','LDR (dB)','SNR','Kdp (deg/km)','PhiDP (deg)'] #KASPR common
 elif radar_type=='NEXRAD':
     colorbar_labels = ['DBZ (dBZ)','V (m/s)','Width (m/s)','rhoHV','Zdr (dB)']
 
@@ -208,7 +210,7 @@ cuckooPalette = colormap.cuckoo()
 if radar_type=='CHILL':
     cmaps = [LCH,'RdBu_r',LCH_zdr,LCH_wid,'bone_r','copper','magma',cuckooPalette] #CSU-CHILL
 elif radar_type=='KASPR':
-    cmaps = ['bone_r',LCH_zdr,'RdBu_r',LCH,LCH_wid,'inferno','copper'] #KASPR common
+    cmaps = ['bone_r',LCH_zdr,'RdBu_r',LCH,LCH_wid,'inferno','copper',cuckooPalette,'magma'] #KASPR common
 elif radar_type=='NEXRAD':
     cmaps = [LCH,'RdBu_r',LCH_wid,'bone_r',LCH_zdr]
 
