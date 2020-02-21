@@ -151,14 +151,8 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
             plt.close()
             
             # Initiate plot and specify size
-            print(figsize)
             fig = plt.figure(figsize = figsize)
             ax = fig.add_subplot(111)
-            
-            #if scan_strat == 'RHI':
-            #    plt.subplots_adjust(left=0.0, right=.99, top=0.95, bottom=0.2)
-            #else:
-            #    plt.subplots_adjust(left=0.1, right=.9, top=0.97, bottom=0.1)
             ax.set_facecolor('#CCCCCC') #Controls background color within the radar data display. Can be any Hex color code. Normal value: #CCCCCC (light gray)
                 
             try:
@@ -206,10 +200,7 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                 
                 #caption_dict controls the text characteristics for all meta text on the figure
                 #   UNCW teal: '#105456'
-                caption_dict = {'fontname':'Arial',
-                                'color': '#000000',
-                                'size': 26,
-                                'weight': 'bold'}
+                caption_dict = {'size': 26}
                 
                 metadisp = True #Logical to display metatext in figure
                     
@@ -291,8 +282,8 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                             if radar_type=='NEXRAD' and contour_bool==True:
                                 plt.figtext(0.1,0.905,total_text,caption_dict) #Title the figure with the metatext
                             else:
-                                plt.figtext(0.17,0.905,total_text,caption_dict) #Title the figure with the metatext
-                        #plt.tight_layout()
+                                plt.figtext(0.17,0.88,total_text,caption_dict) #Title the figure with the metatext
+                        plt.tight_layout(rect=[0.05,0,0.95,1])
                             
             except ValueError:
                 print("Error in sweep!") #Prevents the plotter from failing silently on a large number of files
