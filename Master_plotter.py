@@ -140,9 +140,6 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
             
             vmin, vmax = ranges[i]                       
             
-            # Check to see if values are in range
-            #radar = quality_control.set2range(radar,field,vmax,vmin) #Not used in current processing workflow
-            
             # Instantiate PyART radar display object
             display = pyart.graph.RadarDisplay(radar)            
             
@@ -198,8 +195,9 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                 else:
                     total_text = time_text+long_spacer+angle_text+long_spacer+scan_strat
                 
-                #caption_dict controls the text characteristics for all meta text on the figure
-                #   UNCW teal: '#105456'
+                #caption_dict controls characteristics for all meta text in the title
+                # Currently, only size is set here, but this dictionary can be used 
+                # for font name, color, weight, etc.
                 caption_dict = {'size': 26}
                 
                 metadisp = True #Logical to display metatext in figure
@@ -221,9 +219,7 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                         plt.tight_layout(rect=[0,0.09,1,0.95])
                         plt.figtext(0.35,0.95,total_text,caption_dict) #Title the figure with the metatext
                     else:
-                        plt.tight_layout(rect=[0,0.09,1,0.95])
-
-                    
+                        plt.tight_layout(rect=[0,0.09,1,0.95])                   
                         
                 else:
                         display.plot_ppi(field, sweepnum, vmin = vmin, vmax = vmax, title_flag = title_flag, cmap = cmap, axislabels = (axis, "N-S distance (km)"),colorbar_flag=True, colorbar_label = colorbar_label)
@@ -322,8 +318,7 @@ def plot(radar, radar_type, filename, outpath, scan_strat, fields, ranges, cmaps
                         save_name = "%s%s.%s.contour%s.%d.%s.png" %(outpath, filename, field, contour_field, sweepnum, a_save)
                     else:
                         save_name = "%s%s.%s.%d.%s.png" %(outpath, filename, field, sweepnum, a_save)
-    
-            
+               
             plt.close('all')
             fig.savefig(save_name)
             del display
